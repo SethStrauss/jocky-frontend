@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Event } from '../types';
+import { Event, Artist } from '../types';
 import './WeekView.css';
 
 interface WeekViewProps {
@@ -10,6 +10,7 @@ interface WeekViewProps {
   onEventClick?: (event: Event, clickedDate?: Date) => void;
   viewMode: 'week' | 'month';
   onViewModeChange: (mode: 'week' | 'month') => void;
+  artists?: Artist[];
 }
 
 const WeekView: React.FC<WeekViewProps> = ({
@@ -18,6 +19,7 @@ const WeekView: React.FC<WeekViewProps> = ({
   events,
   onCreateEvent,
   onEventClick,
+  artists,
   viewMode,
   onViewModeChange
 }) => {
@@ -212,11 +214,15 @@ const WeekView: React.FC<WeekViewProps> = ({
                           )}
                           <div className="week-event-top-row">
                             <div className="week-event-name">{event.name}</div>
-                            {event.artistName && (
-                              <div className="week-event-dj-avatar" title={event.artistName}>
-                                {event.artistName.charAt(0).toUpperCase()}
-                              </div>
-                            )}
+                            {event.artistName && (() => {
+                              const photo = artists?.find(a => a.id === event.artistId)?.image || '';
+                              return (
+                                <div className="week-event-dj-avatar" title={event.artistName}
+                                  style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}>
+                                  {!photo && event.artistName.charAt(0).toUpperCase()}
+                                </div>
+                              );
+                            })()}
                           </div>
                           <div className="week-event-time">{timeStr(event.startTime)} - {timeStr(event.endTime)}</div>
                         </div>

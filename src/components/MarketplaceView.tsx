@@ -22,6 +22,7 @@ export interface ArtistConnection {
   artistType: string;
   artistLocation: string;
   artistGenres: string[];
+  artistPhoto?: string;
   venueId: string;
   venueName: string;
   status: 'pending' | 'accepted' | 'declined';
@@ -106,6 +107,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
       artistType: artist.type,
       artistLocation: artist.location,
       artistGenres: artist.genres || [],
+      artistPhoto: artist.photo || '',
       venueId,
       venueName,
       status: 'pending',

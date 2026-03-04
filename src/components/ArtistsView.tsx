@@ -91,11 +91,14 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
 
             {displayList.map(conn => (
               <div key={conn.id} className={`artist-pool-card ${conn.status === 'pending' ? 'artist-pool-card--pending' : ''}`}
-                onClick={() => setProfileArtist({ id: conn.artistId, name: conn.artistName, type: conn.artistType, location: conn.artistLocation, genres: conn.artistGenres })}
+                onClick={() => setProfileArtist({ id: conn.artistId, name: conn.artistName, type: conn.artistType, location: conn.artistLocation, genres: conn.artistGenres, photo: conn.artistPhoto || '' })}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="pool-avatar">
-                  {conn.artistName.charAt(0)}
+                  {conn.artistPhoto
+                    ? <img src={conn.artistPhoto} alt={conn.artistName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    : conn.artistName.charAt(0)
+                  }
                 </div>
                 <div className="pool-info">
                   <div className="pool-name">{conn.artistName}</div>

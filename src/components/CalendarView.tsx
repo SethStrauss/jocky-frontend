@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Event } from '../types';
-import { getDJPhoto } from '../utils/djPhoto';
+import { Event, Artist } from '../types';
 import './CalendarView.css';
 
 interface CalendarViewProps {
@@ -14,6 +13,7 @@ interface CalendarViewProps {
   viewMode: 'week' | 'month';
   onViewModeChange: (mode: 'week' | 'month') => void;
   onOpenBookArtist?: () => void;
+  artists?: Artist[];
 }
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -38,6 +38,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   viewMode,
   onViewModeChange,
   onOpenBookArtist,
+  artists,
 }) => {
   const [displayMode, setDisplayMode] = useState<'list' | 'calendar'>('calendar');
   const [popupEvent, setPopupEvent] = useState<Event | null>(null);
@@ -241,6 +242,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           onMouseEnter={keepPopup}
           onMouseLeave={hidePopup}
           onEdit={() => { setPopupEvent(null); onEventClick?.(popupEvent); }}
+          artists={artists}
         />,
         document.body
       )}
@@ -248,12 +250,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   );
 };
 
-function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit }: {
+function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit, artists: poolArtists }: {
   ev: Event; x: number; y: number;
   onMouseEnter: () => void; onMouseLeave: () => void; onEdit: () => void;
+  artists?: Artist[];
 }) {
   const artists = ev.status === 'offered' ? (ev.bookingRequests || []) : (ev.interestChecks || []);
-  const photo = getDJPhoto();
   const d = new Date(ev.date);
   const dateStr = `${d.getDate()}. ${MONTHS[d.getMonth()]}`;
 
@@ -284,7 +286,9 @@ function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit }: {
         <>
           <div className="ep-divider" />
           <div className="ep-artists">
-            {artists.map((a, i) => (
+            {artists.map((a, i) => {
+              const photo = poolArtists?.find(p => p.id === a.artistId)?.image || '';
+              return (
               <div key={i} className="ep-artist-row">
                 <div className="ep-avatar">
                   {photo
@@ -295,7 +299,8 @@ function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit }: {
                 <span className="ep-artist-name">{a.artistName}</span>
                 <span className={`ep-dot ${ev.status === 'offered' ? 'ep-dot-yellow' : 'ep-dot-blue'}`} />
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { getDJPhoto } from '../utils/djPhoto';
 import { Event, Artist } from '../types';
 import { eventService } from '../services/event.service';
 import './EventDetailsModal.css';
@@ -212,29 +211,17 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
           </div>
 
           {event.artistName && event.status !== 'open' && (() => {
-            const p = loadArtistProfile();
-            const bioShort = p.bio.length > 120 ? p.bio.slice(0, 120) + '…' : p.bio;
+            const artistPhoto = artists.find(a => a.id === event.artistId)?.image || '';
             return (
               <div className="edm-artist-card">
                 <div className="edm-artist-header">
-                  <div className="edm-artist-photo" style={p.photo ? { backgroundImage: `url(${p.photo})`, backgroundSize: 'cover', backgroundPosition: `${p.photoX}% ${p.photoY}%` } : undefined}>
-                    {!p.photo && event.artistName.charAt(0).toUpperCase()}
+                  <div className="edm-artist-photo" style={artistPhoto ? { backgroundImage: `url(${artistPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                    {!artistPhoto && event.artistName.charAt(0).toUpperCase()}
                   </div>
                   <div className="edm-artist-meta">
                     <div className="edm-artist-name">{event.artistName}</div>
-                    <div className="edm-artist-sub">{p.category} · {p.location}</div>
-                    <div className="edm-artist-genres">
-                      {p.genres.map((g: string) => <span key={g} className="edm-genre-tag">{g}</span>)}
-                    </div>
                   </div>
                 </div>
-                {p.bio && <p className="edm-artist-bio">{bioShort}</p>}
-                {p.pressKit && (
-                  <a className="edm-presskit-btn" href={p.pressKit.data} download={p.pressKit.name}>
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
-                    {p.pressKit.name}
-                  </a>
-                )}
               </div>
             );
           })()}
@@ -254,7 +241,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                 {interestChecks.length === 0
                   ? <div className="edm-check-empty">No interest checks sent yet</div>
                   : interestChecks.map((check, i) => {
-                      const photo = getDJPhoto();
+                      const photo = artists.find(a => a.id === check.artistId)?.image || '';
                       const statusText = check.djResponse === 'interested' ? 'Interested ✓'
                         : check.djResponse === 'declined' ? 'Declined'
                         : 'Waiting for response…';
@@ -290,7 +277,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                 {bookingRequests.length === 0
                   ? <div className="edm-check-empty">No offers sent yet</div>
                   : bookingRequests.map((req, i) => {
-                      const photo = getDJPhoto();
+                      const photo = artists.find(a => a.id === req.artistId)?.image || '';
                       return (
                         <div key={i} className="edm-check-row">
                           <div className="edm-confirmed-avatar" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
@@ -307,18 +294,18 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
         )}
 
         {event.status === 'confirmed' && (() => {
-          const p = loadArtistProfile();
+          const confirmedPhoto = artists.find(a => a.id === event.artistId)?.image || '';
           return (
             <div className="status-message status-message-confirmed edm-confirmed-row">
               <span>✓ Confirmed with</span>
               <div className="edm-confirmed-artist">
                 <div
                   className="edm-confirmed-avatar"
-                  style={p.photo ? { backgroundImage: `url(${p.photo})`, backgroundSize: 'cover', backgroundPosition: `${p.photoX}% ${p.photoY}%` } : undefined}
+                  style={confirmedPhoto ? { backgroundImage: `url(${confirmedPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
                 >
-                  {!p.photo && (event.artistName || p.name).charAt(0).toUpperCase()}
+                  {!confirmedPhoto && (event.artistName || '?').charAt(0).toUpperCase()}
                 </div>
-                <span className="edm-confirmed-name">{event.artistName || p.name}</span>
+                <span className="edm-confirmed-name">{event.artistName}</span>
               </div>
             </div>
           );

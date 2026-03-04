@@ -365,8 +365,8 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
                   return (
                     <label key={artist.id} className="artist-item">
                       <input type="checkbox" checked={selectedArtists.includes(artist.id)} onChange={() => toggleArtist(artist.id)} />
-                      <div className="artist-avatar-small">
-                        {artist.name.charAt(0)}
+                      <div className="artist-avatar-small" style={artist.image ? { backgroundImage: `url(${artist.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                        {!artist.image && artist.name.charAt(0)}
                       </div>
                       <div className="artist-info-small">
                         <div className="artist-name-small">{artist.name}</div>

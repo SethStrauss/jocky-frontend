@@ -53,6 +53,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
         location: p.location || '',
         genres: p.genres || [],
         about: p.bio || '',
+        image: p.photo || '',
       })));
     });
   }, []);
@@ -75,8 +76,8 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
         onClick={() => toggleArtist(artist.id)}
       >
         <input type="checkbox" checked={selectedArtists.includes(artist.id)} readOnly />
-        <div className="artist-avatar">
-          {artist.name.charAt(0)}
+        <div className="artist-avatar" style={artist.image ? { backgroundImage: `url(${artist.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+          {!artist.image && artist.name.charAt(0)}
         </div>
         <div className="artist-info">
           <div className="artist-name">{artist.name}</div>
@@ -162,11 +163,14 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                         <td>
                           <div className="et-artist-cell">
                             <div className="et-avatar-stack">
-                              {eventArtists.slice(0, 4).map((a, i) => (
-                                <div key={i} className="et-avatar" style={{ zIndex: 4 - i }}>
-                                  {a.artistName.charAt(0).toUpperCase()}
+                              {eventArtists.slice(0, 4).map((a, i) => {
+                                const photo = artists.find(ar => ar.id === a.artistId)?.image || '';
+                                return (
+                                <div key={i} className="et-avatar" style={{ zIndex: 4 - i, ...(photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}) }}>
+                                  {!photo && a.artistName.charAt(0).toUpperCase()}
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                             {eventArtists.length === 1 && (
                               <span className="et-artist-name">{eventArtists[0].artistName}</span>

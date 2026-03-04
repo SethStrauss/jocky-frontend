@@ -93,6 +93,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         location: c.artistLocation,
         genres: c.artistGenres,
         about: '',
+        image: c.artistPhoto || '',
       }))
   );
 
@@ -109,6 +110,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
               location: c.artistLocation,
               genres: c.artistGenres,
               about: '',
+              image: c.artistPhoto || '',
             }))
         );
       }
@@ -151,6 +153,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
           location: c.artistLocation,
           genres: c.artistGenres,
           about: '',
+          image: c.artistPhoto || '',
         }))
     );
   };
@@ -192,9 +195,9 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       {!showVenueProfile && activeTab === 'events' && (
         <>
           {viewMode === 'month' ? (
-            <CalendarView currentDate={currentDate} onDateChange={setCurrentDate} events={events} onCreateEvent={(date, time) => { setSelectedDateTime({ date, time }); setShowCreateModal(true); }} onEventClick={(ev, date) => { setSelectedEvent(ev); setSelectedEventDate(date || null); }} onEventDateChange={handleEventDateChange} viewMode={viewMode} onViewModeChange={setViewMode} onOpenBookArtist={() => setShowBookArtistModal(true)} />
+            <CalendarView currentDate={currentDate} onDateChange={setCurrentDate} events={events} onCreateEvent={(date, time) => { setSelectedDateTime({ date, time }); setShowCreateModal(true); }} onEventClick={(ev, date) => { setSelectedEvent(ev); setSelectedEventDate(date || null); }} onEventDateChange={handleEventDateChange} viewMode={viewMode} onViewModeChange={setViewMode} onOpenBookArtist={() => setShowBookArtistModal(true)} artists={poolArtists} />
           ) : (
-            <WeekView currentDate={currentDate} onDateChange={setCurrentDate} events={events} onCreateEvent={(date, time) => { setSelectedDateTime({ date, time }); setShowCreateModal(true); }} onEventClick={(ev, date) => { setSelectedEvent(ev); setSelectedEventDate(date || null); }} viewMode={viewMode} onViewModeChange={setViewMode} />
+            <WeekView currentDate={currentDate} onDateChange={setCurrentDate} events={events} onCreateEvent={(date, time) => { setSelectedDateTime({ date, time }); setShowCreateModal(true); }} onEventClick={(ev, date) => { setSelectedEvent(ev); setSelectedEventDate(date || null); }} viewMode={viewMode} onViewModeChange={setViewMode} artists={poolArtists} />
           )}
         </>
       )}
