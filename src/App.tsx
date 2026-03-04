@@ -25,7 +25,7 @@ import { loadVenueName } from './utils/venueProfile';
 import { setCurrentSession } from './currentUser';
 import {
   loadUserDataToLocalStorage, clearUserLocalStorage,
-  upsertEvents, deleteEventDB,
+  upsertEvents, deleteEventDB, fetchAllDJProfiles,
 } from './services/db';
 import './App.css';
 
@@ -118,6 +118,16 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, [userId]);
+
+  // Enrich poolArtists with photos from Supabase (connections table doesn't store photos)
+  useEffect(() => {
+    fetchAllDJProfiles().then(profiles => {
+      setPoolArtists(prev => prev.map(artist => {
+        const profile = profiles.find((p: any) => p.id === artist.id);
+        return profile?.photo ? { ...artist, image: profile.photo } : artist;
+      }));
+    });
+  }, []);
 
   const [unreadMessages, setUnreadMessages] = useState(() => getUnreadCount('venue'));
 
