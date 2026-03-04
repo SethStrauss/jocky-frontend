@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import { currentSession } from '../currentUser';
+import { upsertVenueProfile } from '../services/db';
 import './VenueProfile.css';
 
 interface VenueProfileProps {
@@ -75,6 +77,7 @@ const VenueProfile: React.FC<VenueProfileProps> = ({ onClose }) => {
     setData(next);
     localStorage.setItem('jocky_venue_profile', JSON.stringify(next));
     window.dispatchEvent(new StorageEvent('storage', { key: 'jocky_venue_profile' }));
+    if (currentSession?.userId) upsertVenueProfile(currentSession.userId, next);
   };
 
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {

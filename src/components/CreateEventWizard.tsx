@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Event, Artist } from '../types';
-import { getDJPhoto } from '../utils/djPhoto';
 import DateRangePicker from './DateRangePicker';
 import { MarketplaceArtist } from './MarketplaceView';
 import { loadVenueName } from '../utils/venueProfile';
@@ -363,12 +362,11 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
 
               <div className="artists-list">
                 {filteredArtists.map(artist => {
-                  const photo = artist.id === 'dj_strauss' ? getDJPhoto() : '';
                   return (
                     <label key={artist.id} className="artist-item">
                       <input type="checkbox" checked={selectedArtists.includes(artist.id)} onChange={() => toggleArtist(artist.id)} />
-                      <div className="artist-avatar-small" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}>
-                        {!photo && artist.name.charAt(0)}
+                      <div className="artist-avatar-small">
+                        {artist.name.charAt(0)}
                       </div>
                       <div className="artist-info-small">
                         <div className="artist-name-small">{artist.name}</div>
@@ -408,12 +406,11 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
                   </div>
                   <div className="mp-picker-list">
                     {filtered.map(artist => {
-                      const photo = artist.id === 'dj_strauss' ? getDJPhoto() : '';
                       const selected = isSelected(artist.id);
                       return (
                         <div key={artist.id} className={`mp-picker-row ${selected ? 'mp-picker-row--selected' : ''}`} onClick={() => toggle(artist)}>
-                          <div className="artist-avatar-small" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}>
-                            {!photo && artist.name.charAt(0)}
+                          <div className="artist-avatar-small">
+                            {artist.name.charAt(0)}
                           </div>
                           <div className="artist-info-small">
                             <div className="artist-name-small">{artist.name}</div>

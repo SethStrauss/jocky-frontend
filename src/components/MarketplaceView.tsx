@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getDJPhoto } from '../utils/djPhoto';
 import { loadVenueName } from '../utils/venueProfile';
+import { currentSession } from '../currentUser';
+import { fetchAllDJProfiles, createConnectionDB } from '../services/db';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import './MarketplaceView.css';
 
@@ -26,8 +27,6 @@ export interface ArtistConnection {
   requestedAt: string;
 }
 
-const VENUE_ID = 'venue_default';
-const VENUE_NAME = loadVenueName();
 const CONNECTIONS_KEY = 'jocky_artist_connections';
 
 export function loadConnections(): ArtistConnection[] {
@@ -42,23 +41,6 @@ export function saveConnections(conns: ArtistConnection[]) {
   localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(conns));
 }
 
-// DJ Strauss is always on the marketplace (pulled from his profile)
-export function getDJStraussListing(): MarketplaceArtist {
-  try {
-    const profile = JSON.parse(localStorage.getItem('jocky_dj_profile') || '{}');
-    return {
-      id: 'dj_strauss',
-      name: profile.name || 'DJ Strauss',
-      type: profile.category || 'Club DJ',
-      location: profile.location || 'Stockholm',
-      genres: profile.genres || ['House', 'Techno', 'Tech House'],
-      priceRange: profile.price || '5 000–10 000 SEK',
-    };
-  } catch {
-    return { id: 'dj_strauss', name: 'DJ Strauss', type: 'Club DJ', location: 'Stockholm', genres: ['House', 'Techno', 'Tech House'] };
-  }
-}
-
 interface MarketplaceViewProps {
   onConnectionChange?: () => void;
 }
@@ -70,6 +52,26 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
   const [connections, setConnections] = useState<ArtistConnection[]>(loadConnections);
   const [added, setAdded] = useState<string | null>(null);
   const [profileArtist, setProfileArtist] = useState<MarketplaceArtist | null>(null);
+  const [allArtists, setAllArtists] = useState<MarketplaceArtist[]>([]);
+
+  // Load DJs from Supabase on mount
+  useEffect(() => {
+    fetchAllDJProfiles().then(profiles => {
+      const venueUserId = currentSession?.userId;
+      setAllArtists(profiles
+        .filter(p => p.name) // only show profiles that have a name set
+        .filter(p => !venueUserId || p.id !== venueUserId) // don't show yourself
+        .map(p => ({
+          id: p.id,
+          name: p.name,
+          type: p.category || 'Club DJ',
+          location: p.location || '',
+          genres: p.genres || [],
+          priceRange: p.price || '',
+        }))
+      );
+    });
+  }, []);
 
   useEffect(() => {
     const handler = (e: StorageEvent) => {
@@ -79,8 +81,6 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const allArtists: MarketplaceArtist[] = [];
-
   const filtered = allArtists.filter(a => {
     const matchesType = !artistType || a.type.toLowerCase().includes(artistType.toLowerCase());
     const matchesLocation = !location || a.location.toLowerCase().includes(location.toLowerCase());
@@ -88,11 +88,14 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
     return matchesType && matchesLocation && matchesSearch;
   });
 
+  const venueId = currentSession?.userId || 'venue_default';
+  const venueName = loadVenueName();
+
   const getConnectionStatus = (artistId: string) =>
-    connections.find(c => c.artistId === artistId && c.venueId === VENUE_ID)?.status;
+    connections.find(c => c.artistId === artistId && c.venueId === venueId)?.status;
 
   const handleAdd = (artist: MarketplaceArtist) => {
-    const existing = connections.find(c => c.artistId === artist.id && c.venueId === VENUE_ID);
+    const existing = connections.find(c => c.artistId === artist.id && c.venueId === venueId);
     if (existing) return;
     const newConn: ArtistConnection = {
       id: `conn_${Date.now()}`,
@@ -101,14 +104,15 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
       artistType: artist.type,
       artistLocation: artist.location,
       artistGenres: artist.genres || [],
-      venueId: VENUE_ID,
-      venueName: VENUE_NAME,
-      status: 'accepted',
+      venueId,
+      venueName,
+      status: 'pending',
       requestedAt: new Date().toISOString(),
     };
     const updated = [...connections, newConn];
     saveConnections(updated);
     setConnections(updated);
+    createConnectionDB(newConn);
     setAdded(artist.id);
     setTimeout(() => setAdded(null), 2000);
     onConnectionChange?.();
@@ -163,10 +167,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
           return (
             <div key={artist.id} className="marketplace-card" style={{ cursor: 'pointer' }} onClick={() => setProfileArtist(artist)}>
               <div className="marketplace-card-image">
-                {artist.id === 'dj_strauss' && getDJPhoto()
-                  ? <img src={getDJPhoto()} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
-                }
+                <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
               </div>
               <div className="marketplace-card-info">
                 <h3 className="artist-card-name">{artist.name}</h3>

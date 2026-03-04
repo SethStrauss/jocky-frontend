@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { loadConnections, saveConnections, ArtistConnection, MarketplaceArtist } from './MarketplaceView';
-import { getDJPhoto } from '../utils/djPhoto';
 import { loadVenueName } from '../utils/venueProfile';
+import { currentSession } from '../currentUser';
+import { removeConnectionDB } from '../services/db';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import './ArtistsView.css';
-
-const VENUE_ID = 'venue_default';
-const VENUE_NAME = loadVenueName();
 
 interface ArtistsViewProps {
   onMessage?: (artistId: string, artistName: string, venueName: string) => void;
 }
 
 const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
+  const VENUE_ID = currentSession?.userId || 'venue_default';
+  const VENUE_NAME = loadVenueName();
   const [connections, setConnections] = useState<ArtistConnection[]>(() =>
     loadConnections().filter(c => c.venueId === VENUE_ID)
   );
@@ -27,10 +27,9 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
       }
     };
     window.addEventListener('storage', handler);
-    // Re-load on mount in case DJ accepted in another tab
     setConnections(loadConnections().filter(c => c.venueId === VENUE_ID));
     return () => window.removeEventListener('storage', handler);
-  }, []);
+  }, [VENUE_ID]);
 
   const accepted = connections.filter(c => c.status === 'accepted');
   const pending  = connections.filter(c => c.status === 'pending');
@@ -44,6 +43,7 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
     const updated = all.filter(c => c.id !== connId);
     saveConnections(updated);
     setConnections(updated.filter(c => c.venueId === VENUE_ID));
+    removeConnectionDB(connId);
   };
 
   return (
@@ -94,11 +94,8 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
                 onClick={() => setProfileArtist({ id: conn.artistId, name: conn.artistName, type: conn.artistType, location: conn.artistLocation, genres: conn.artistGenres })}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="pool-avatar" style={conn.artistId === 'dj_strauss' && getDJPhoto() ? { padding: 0, overflow: 'hidden' } : undefined}>
-                  {conn.artistId === 'dj_strauss' && getDJPhoto()
-                    ? <img src={getDJPhoto()} alt={conn.artistName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : conn.artistName.charAt(0)
-                  }
+                <div className="pool-avatar">
+                  {conn.artistName.charAt(0)}
                 </div>
                 <div className="pool-info">
                   <div className="pool-name">{conn.artistName}</div>

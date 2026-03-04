@@ -1,34 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { loadConnections, saveConnections, ArtistConnection } from './MarketplaceView';
+import { updateConnectionStatusDB } from '../services/db';
 import './DJVenuesView.css';
 
-const DJ_ARTIST_ID = 'dj_strauss';
-
 interface DJVenuesViewProps {
-  onMessage?: (artistId: string, artistName: string, venueName: string) => void;
+  userId: string;
+  onMessage?: (artistId: string, artistName: string, venueName: string, venueId?: string) => void;
   onConnectionChange?: () => void;
 }
 
-const DJVenuesView: React.FC<DJVenuesViewProps> = ({ onMessage, onConnectionChange }) => {
+const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnectionChange }) => {
   const [connections, setConnections] = useState<ArtistConnection[]>(() =>
-    loadConnections().filter(c => c.artistId === DJ_ARTIST_ID)
+    loadConnections().filter(c => c.artistId === userId)
   );
 
   useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key === 'jocky_artist_connections') {
-        setConnections(loadConnections().filter(c => c.artistId === DJ_ARTIST_ID));
+        setConnections(loadConnections().filter(c => c.artistId === userId));
       }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, []);
+  }, [userId]);
 
   const respond = (connId: string, status: 'accepted' | 'declined') => {
     const all = loadConnections();
     const updated = all.map(c => c.id === connId ? { ...c, status } : c);
     saveConnections(updated);
-    setConnections(updated.filter(c => c.artistId === DJ_ARTIST_ID));
+    setConnections(updated.filter(c => c.artistId === userId));
+    updateConnectionStatusDB(connId, status);
     onConnectionChange?.();
   };
 
@@ -81,7 +82,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ onMessage, onConnectionChan
                 </div>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                   {onMessage && (
-                    <button className="dv-btn dv-btn--message" onClick={() => onMessage('dj_strauss', 'DJ Strauss', conn.venueName)}>
+                    <button className="dv-btn dv-btn--message" onClick={() => onMessage(userId, 'DJ', conn.venueName, conn.venueId)}>
                       Message
                     </button>
                   )}

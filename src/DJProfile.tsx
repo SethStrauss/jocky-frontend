@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import { currentSession } from './currentUser';
+import { upsertDJProfile } from './services/db';
 import './DJProfile.css';
 
 interface Gig {
@@ -147,7 +149,9 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
   );
 
   const saveProfile = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ name, bio, genres, category, location, spotify, youtube, price, photo, photoX, photoY, manualGigs, pressKit }));
+    const profileData = { name, bio, genres, category, location, spotify, youtube, price, photo, photoX, photoY, manualGigs, pressKit };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
+    if (currentSession?.userId) upsertDJProfile(currentSession.userId, profileData);
   };
 
   const addGenre = () => {

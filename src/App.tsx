@@ -12,7 +12,7 @@ import HistoryView from './components/HistoryView';
 import MarketplaceView from './components/MarketplaceView';
 import MessagesView, { ensureChat, getUnreadCount, markAllRead } from './components/MessagesView';
 import DJVenuesView from './components/DJVenuesView';
-import { loadConnections, getDJStraussListing } from './components/MarketplaceView';
+import { loadConnections } from './components/MarketplaceView';
 import CreateEventWizard from './components/CreateEventWizard';
 import EventDetailsModal from './components/EventDetailsModal';
 import ArtistProfileModal from './components/ArtistProfileModal';
@@ -21,6 +21,11 @@ import VenueProfile from './components/VenueProfile';
 import { Event, Artist } from './types';
 import { getDJPhoto } from './utils/djPhoto';
 import { loadVenueName } from './utils/venueProfile';
+import { setCurrentSession } from './currentUser';
+import {
+  loadUserDataToLocalStorage, clearUserLocalStorage,
+  upsertEvents, deleteEventDB,
+} from './services/db';
 import './App.css';
 
 
@@ -28,7 +33,7 @@ let nextId = 100;
 
 // ── Venue App ────────────────────────────────────────────────────────────────
 
-function VenueApp({ onLogout }: { onLogout: () => void }) {
+function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }) {
   const [activeTab, setActiveTab] = useState<string>('events');
   const [showVenueProfile, setShowVenueProfile] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -145,6 +150,7 @@ function VenueApp({ onLogout }: { onLogout: () => void }) {
   const saveEvents = (updated: Event[]) => {
     setEvents(updated);
     localStorage.setItem('jocky_events', JSON.stringify(updated));
+    upsertEvents(updated, userId);
   };
 
   const handleEventDateChange = (eventId: string, newDate: Date) => {
@@ -185,7 +191,7 @@ function VenueApp({ onLogout }: { onLogout: () => void }) {
       )}
       {!showVenueProfile && activeTab === 'artists' && (
         <ArtistsView onMessage={(artistId, artistName, venueName) => {
-          ensureChat(artistId, artistName, venueName);
+          ensureChat(artistId, artistName, venueName, userId);
           markAllRead('venue');
           setUnreadMessages(0);
           setActiveTab('messages');
@@ -194,20 +200,19 @@ function VenueApp({ onLogout }: { onLogout: () => void }) {
       {!showVenueProfile && activeTab === 'requests' && <RequestsView />}
       {!showVenueProfile && activeTab === 'history' && <HistoryView />}
       {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} />}
-      {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" />}
+      {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} />}
       {showCreateModal && <CreateEventWizard onClose={() => { setShowCreateModal(false); setSelectedDateTime(null); }} onCreate={handleCreateEvent} initialDate={selectedDateTime?.date || currentDate} initialTime={selectedDateTime?.time} artists={poolArtists} />}
       {selectedEvent && (
         <EventDetailsModal event={selectedEvent} clickedDate={selectedEventDate || undefined} onClose={() => { setSelectedEvent(null); setSelectedEventDate(null); }}
           onUpdate={(updatedEvent?: Event) => { if (updatedEvent) { saveEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e)); setSelectedEvent(updatedEvent); } }}
-          onDelete={() => { saveEvents(events.filter(e => e.id !== selectedEvent.id)); setSelectedEvent(null); setSelectedEventDate(null); }}
+          onDelete={() => { deleteEventDB(selectedEvent.id); saveEvents(events.filter(e => e.id !== selectedEvent.id)); setSelectedEvent(null); setSelectedEventDate(null); }}
           onMessageArtist={() => { setSelectedEvent(null); setSelectedEventDate(null); setActiveTab('requests'); }}
           artists={poolArtists} />
       )}
       {selectedArtist && <ArtistProfileModal artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookNow={() => { setSelectedArtist(null); setShowCreateModal(true); }} onMessage={() => { setSelectedArtist(null); setActiveTab('messages'); }} />}
       {showBookArtistModal && <BookArtistModal onClose={() => setShowBookArtistModal(false)} onBook={(selectedArtistIds, selectedEventIds, mode) => {
         if (selectedArtistIds.length > 0 && selectedEventIds.length > 0) {
-          const listing = getDJStraussListing();
-          const resolveName = (id: string) => poolArtists.find(a => a.id === id)?.name || (id === listing.id ? listing.name : id);
+          const resolveName = (id: string) => poolArtists.find(a => a.id === id)?.name || id;
           if (mode === 'interest') {
             const newChecks = selectedArtistIds.map(id => ({ artistId: id, artistName: resolveName(id) }));
             const updated = events.map(e =>
@@ -255,7 +260,7 @@ function toDateStr(d: any): string {
   return new Date(d).toISOString().split('T')[0];
 }
 
-function loadRequestsFromStorage(): Request[] {
+function loadRequestsFromStorage(djId?: string): Request[] {
   try {
     const saved = localStorage.getItem('jocky_events');
     if (saved) {
@@ -263,15 +268,23 @@ function loadRequestsFromStorage(): Request[] {
       return events
         .filter((e: any) => {
           if (e.status !== 'offered' && e.status !== 'open') return false;
-          if (e.status === 'open') {
-            const djCheck = (e.interestChecks || []).find((ic: any) => ic.artistId === 'dj_strauss');
-            if (djCheck?.djResponse === 'declined') return false;
+          if (djId) {
+            // If we have a real DJ ID, only show events where this DJ is involved
+            if (e.status === 'open') {
+              const ic = (e.interestChecks || []).find((c: any) => c.artistId === djId);
+              if (!ic) return false;
+              if (ic.djResponse === 'declined') return false;
+            }
+            if (e.status === 'offered') {
+              const br = (e.bookingRequests || []).find((c: any) => c.artistId === djId);
+              if (!br) return false;
+            }
           }
           return true;
         })
         .map((e: any) => {
           const djCheck = e.status === 'open'
-            ? (e.interestChecks || []).find((ic: any) => ic.artistId === 'dj_strauss')
+            ? (e.interestChecks || []).find((ic: any) => ic.artistId === (djId || 'dj_strauss'))
             : null;
           return {
             id: e.id,
@@ -292,13 +305,17 @@ function loadRequestsFromStorage(): Request[] {
   return [];
 }
 
-function loadUpcomingFromStorage(): Request[] {
+function loadUpcomingFromStorage(djId?: string): Request[] {
   try {
     const saved = localStorage.getItem('jocky_events');
     if (saved) {
       const events = JSON.parse(saved);
       return events
-        .filter((e: any) => e.status === 'confirmed')
+        .filter((e: any) => {
+          if (e.status !== 'confirmed') return false;
+          if (djId && e.artist_id && e.artist_id !== djId) return false;
+          return true;
+        })
         .map((e: any) => ({
           id: e.id,
           venueName: e.venue || 'Unknown Venue',
@@ -317,13 +334,18 @@ function loadUpcomingFromStorage(): Request[] {
   return [];
 }
 
-function updateEventStatusInStorage(id: string, status: string) {
+function updateEventStatusInStorage(id: string, status: string, venueId?: string) {
   try {
     const saved = localStorage.getItem('jocky_events');
     if (saved) {
       const events = JSON.parse(saved);
       const updated = events.map((e: any) => e.id === id ? { ...e, status } : e);
       localStorage.setItem('jocky_events', JSON.stringify(updated));
+      if (venueId) {
+        // Sync updated event to Supabase
+        const evt = updated.find((e: any) => e.id === id);
+        if (evt) upsertEvents([evt], venueId);
+      }
     }
   } catch {}
 }
@@ -508,12 +530,10 @@ function App() {
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const [requests, setRequests] = useState<Request[]>(loadRequestsFromStorage);
-  const [upcoming, setUpcoming] = useState<Request[]>(loadUpcomingFromStorage);
-  const [djUnread, setDjUnread] = useState(() => getUnreadCount('dj'));
-  const [pendingVenueRequests, setPendingVenueRequests] = useState(() =>
-    loadConnections().filter(c => c.artistId === 'dj_strauss' && c.status === 'pending').length
-  );
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [upcoming, setUpcoming] = useState<Request[]>([]);
+  const [djUnread, setDjUnread] = useState(0);
+  const [pendingVenueRequests, setPendingVenueRequests] = useState(0);
 
   useEffect(() => {
     const update = () => setDjUnread(getUnreadCount('dj'));
@@ -523,13 +543,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const update = () => setPendingVenueRequests(
-      loadConnections().filter(c => c.artistId === 'dj_strauss' && c.status === 'pending').length
-    );
+    const update = () => {
+      if (session) {
+        setPendingVenueRequests(
+          loadConnections().filter(c => c.artistId === session.user.id && c.status === 'pending').length
+        );
+      }
+    };
     update();
     window.addEventListener('storage', update);
     return () => window.removeEventListener('storage', update);
-  }, []);
+  }, [session]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -546,24 +570,57 @@ function App() {
   // Pick up new requests created by the venue side (cross-tab)
   useEffect(() => {
     const handler = (e: StorageEvent) => {
-      if (e.key === 'jocky_events') {
-        setRequests(loadRequestsFromStorage());
-        setUpcoming(loadUpcomingFromStorage());
+      if (e.key === 'jocky_events' && session) {
+        const uid = session.user.id;
+        setRequests(loadRequestsFromStorage(uid));
+        setUpcoming(loadUpcomingFromStorage(uid));
       }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, []);
+  }, [session]);
 
   // Supabase auth state
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setUserType(data.session?.user?.user_metadata?.role ?? null);
+      const s = data.session;
+      const role = s?.user?.user_metadata?.role ?? null;
+      setSession(s);
+      setUserType(role);
+      if (s && role) {
+        setCurrentSession({ userId: s.user.id, role });
+        loadUserDataToLocalStorage(s.user.id, role).then(() => {
+          if (role === 'dj') {
+            setRequests(loadRequestsFromStorage(s.user.id));
+            setUpcoming(loadUpcomingFromStorage(s.user.id));
+            setDjUnread(getUnreadCount('dj'));
+            setPendingVenueRequests(
+              loadConnections().filter(c => c.artistId === s.user.id && c.status === 'pending').length
+            );
+          }
+        });
+      }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const role = session?.user?.user_metadata?.role ?? null;
+      if (session && role) {
+        setCurrentSession({ userId: session.user.id, role });
+        loadUserDataToLocalStorage(session.user.id, role).then(() => {
+          if (role === 'dj') {
+            setRequests(loadRequestsFromStorage(session.user.id));
+            setUpcoming(loadUpcomingFromStorage(session.user.id));
+            setDjUnread(getUnreadCount('dj'));
+            setPendingVenueRequests(
+              loadConnections().filter(c => c.artistId === session.user.id && c.status === 'pending').length
+            );
+          }
+        });
+      } else {
+        setCurrentSession(null);
+        clearUserLocalStorage();
+      }
       setSession(session);
-      setUserType(session?.user?.user_metadata?.role ?? null);
+      setUserType(role);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -571,17 +628,20 @@ function App() {
   // Re-load requests and unread counts when DJ logs in
   useEffect(() => {
     if (session && userType === 'dj') {
-      setRequests(loadRequestsFromStorage());
-      setUpcoming(loadUpcomingFromStorage());
+      const uid = session.user.id;
+      setRequests(loadRequestsFromStorage(uid));
+      setUpcoming(loadUpcomingFromStorage(uid));
       setDjUnread(getUnreadCount('dj'));
       setPendingVenueRequests(
-        loadConnections().filter(c => c.artistId === 'dj_strauss' && c.status === 'pending').length
+        loadConnections().filter(c => c.artistId === uid && c.status === 'pending').length
       );
     }
   }, [session, userType]);
 
   if (session === undefined) return <div className="login-page"><div style={{ color: 'white', margin: 'auto' }}>Loading…</div></div>;
   if (!session) return <LoginPage />;
+
+  const djUserId = session.user.id;
 
   const handleAccept = (id: string) => {
     const req = requests.find(r => r.id === id);
@@ -603,7 +663,7 @@ function App() {
           const updated = evs.map((e: any) => e.id === id ? {
             ...e,
             interestChecks: (e.interestChecks || []).map((ic: any) =>
-              ic.artistId === 'dj_strauss' ? { ...ic, djResponse: 'declined' } : ic
+              ic.artistId === djUserId ? { ...ic, djResponse: 'declined' } : ic
             ),
           } : e);
           localStorage.setItem('jocky_events', JSON.stringify(updated));
@@ -623,7 +683,7 @@ function App() {
         const updated = evs.map((e: any) => e.id === id ? {
           ...e,
           interestChecks: (e.interestChecks || []).map((ic: any) =>
-            ic.artistId === 'dj_strauss' ? { ...ic, djResponse: 'interested' } : ic
+            ic.artistId === djUserId ? { ...ic, djResponse: 'interested' } : ic
           ),
         } : e);
         localStorage.setItem('jocky_events', JSON.stringify(updated));
@@ -634,7 +694,7 @@ function App() {
 
   const handleLogout = () => { setShowUserMenu(false); setActiveTab('events'); supabase.auth.signOut(); };
 
-  if (userType === 'venue') return <VenueApp onLogout={handleLogout} />;
+  if (userType === 'venue') return <VenueApp onLogout={handleLogout} userId={session.user.id} />;
 
   return (
     <div className="dj-app">
@@ -797,17 +857,18 @@ function App() {
 
       {!showProfile && activeTab === 'venues' && (
         <DJVenuesView
-          onMessage={(artistId, artistName, venueName) => {
-            ensureChat(artistId, artistName, venueName);
+          userId={djUserId}
+          onMessage={(artistId, artistName, venueName, venueId) => {
+            ensureChat(artistId, artistName, venueName, venueId);
             setShowProfile(false);
             setActiveTab('messages');
           }}
           onConnectionChange={() => setPendingVenueRequests(
-            loadConnections().filter(c => c.artistId === 'dj_strauss' && c.status === 'pending').length
+            loadConnections().filter(c => c.artistId === djUserId && c.status === 'pending').length
           )}
         />
       )}
-      {!showProfile && activeTab === 'messages' && <MessagesView perspective="dj" />}
+      {!showProfile && activeTab === 'messages' && <MessagesView perspective="dj" userId={djUserId} />}
       {showProfile && <DJProfile onClose={() => setShowProfile(false)} />}
 
       {selectedRequest && <RequestDetailsModal req={selectedRequest} onClose={() => setSelectedRequest(null)} />}

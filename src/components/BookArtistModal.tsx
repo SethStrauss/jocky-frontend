@@ -1,20 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Artist, Event } from '../types';
-import { getDJPhoto } from '../utils/djPhoto';
-import { getDJStraussListing } from './MarketplaceView';
+import { fetchAllDJProfiles } from '../services/db';
 import './BookArtistModal.css';
-
-function toArtist(listing: ReturnType<typeof getDJStraussListing>): Artist {
-  return {
-    id: listing.id,
-    name: listing.name,
-    type: listing.type,
-    location: listing.location,
-    genres: listing.genres || [],
-    about: '',
-  };
-}
 
 interface BookArtistModalProps {
   onClose: () => void;
@@ -55,7 +43,20 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
     artist.genres.some(g => g.toLowerCase().includes(poolSearchQuery.toLowerCase()))
   );
 
-  const allMarketplaceArtists = [toArtist(getDJStraussListing())];
+  const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<Artist[]>([]);
+  useEffect(() => {
+    fetchAllDJProfiles().then(profiles => {
+      setAllMarketplaceArtists(profiles.filter(p => p.name).map(p => ({
+        id: p.id,
+        name: p.name,
+        type: p.category || 'Club DJ',
+        location: p.location || '',
+        genres: p.genres || [],
+        about: p.bio || '',
+      })));
+    });
+  }, []);
+
   const marketplaceArtists = allMarketplaceArtists.filter(artist => {
     const matchesSearch = artist.name.toLowerCase().includes(marketplaceSearchQuery.toLowerCase()) ||
                          artist.genres.some(g => g.toLowerCase().includes(marketplaceSearchQuery.toLowerCase()));
@@ -67,7 +68,6 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
   });
 
   const renderArtistCard = (artist: Artist) => {
-    const photo = artist.id === 'dj_strauss' ? getDJPhoto() : '';
     return (
       <div
         key={artist.id}
@@ -75,8 +75,8 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
         onClick={() => toggleArtist(artist.id)}
       >
         <input type="checkbox" checked={selectedArtists.includes(artist.id)} readOnly />
-        <div className="artist-avatar" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : undefined}>
-          {!photo && artist.name.charAt(0)}
+        <div className="artist-avatar">
+          {artist.name.charAt(0)}
         </div>
         <div className="artist-info">
           <div className="artist-name">{artist.name}</div>
@@ -162,17 +162,11 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                         <td>
                           <div className="et-artist-cell">
                             <div className="et-avatar-stack">
-                              {eventArtists.slice(0, 4).map((a, i) => {
-                                const photo = a.artistId === 'dj_strauss' ? getDJPhoto() : '';
-                                return (
-                                  <div key={i} className="et-avatar" style={{ zIndex: 4 - i }}>
-                                    {photo
-                                      ? <img src={photo} alt={a.artistName} />
-                                      : a.artistName.charAt(0).toUpperCase()
-                                    }
-                                  </div>
-                                );
-                              })}
+                              {eventArtists.slice(0, 4).map((a, i) => (
+                                <div key={i} className="et-avatar" style={{ zIndex: 4 - i }}>
+                                  {a.artistName.charAt(0).toUpperCase()}
+                                </div>
+                              ))}
                             </div>
                             {eventArtists.length === 1 && (
                               <span className="et-artist-name">{eventArtists[0].artistName}</span>
@@ -284,7 +278,6 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
             {/* Cards — same grid as marketplace page */}
             <div className="bam-mp-grid">
               {marketplaceArtists.map(artist => {
-                const photo = artist.id === 'dj_strauss' ? getDJPhoto() : '';
                 const isSelected = selectedArtists.includes(artist.id);
                 const isInPool = artists.some(a => a.id === artist.id);
                 return (
@@ -294,12 +287,9 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                     onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
                   >
                     <div className="marketplace-card-image">
-                      {photo
-                        ? <img src={photo} alt={artist.name} />
-                        : <div className="placeholder-image">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
-                          </div>
-                      }
+                      <div className="placeholder-image">
+                        <span>{artist.name.charAt(0)}</span>
+                      </div>
                     </div>
                     <div className="marketplace-card-info">
                       <p className="artist-card-name">{artist.name}</p>

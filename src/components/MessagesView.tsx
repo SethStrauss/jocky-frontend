@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDJPhoto } from '../utils/djPhoto';
+import { upsertChatDB } from '../services/db';
 import './MessagesView.css';
 
 interface ChatMessage {
@@ -33,6 +34,15 @@ export function saveChats(chats: Chat[]) {
   localStorage.setItem('jocky_chats', JSON.stringify(chats));
 }
 
+export function saveChatAndSync(chat: Chat) {
+  const all = loadChats();
+  const updated = all.find(c => c.id === chat.id)
+    ? all.map(c => c.id === chat.id ? chat : c)
+    : [...all, chat];
+  saveChats(updated);
+  upsertChatDB(chat);
+}
+
 export function getUnreadCount(perspective: 'venue' | 'dj'): number {
   const chats = loadChats();
   return chats.reduce((sum, c) =>
@@ -47,9 +57,9 @@ export function markAllRead(perspective: 'venue' | 'dj') {
 }
 
 // Creates a chat between a venue and an artist if one doesn't exist yet.
-// Returns the chat id so the caller can navigate to Messages.
-export function ensureChat(artistId: string, artistName: string, venueName: string): string {
-  const chatId = `conv_${venueName.replace(/\s+/g, '_')}_${artistId}`;
+export function ensureChat(artistId: string, artistName: string, venueName: string, venueId?: string): string {
+  const effectiveVenueId = venueId || venueName.replace(/\s+/g, '_');
+  const chatId = `conv_${effectiveVenueId}_${artistId}`;
   const chats = loadChats();
   if (!chats.find(c => c.id === chatId)) {
     const newChat: Chat = {
@@ -63,16 +73,20 @@ export function ensureChat(artistId: string, artistName: string, venueName: stri
       venueUnread: 0,
       djUnread: 0,
     };
-    saveChats([...chats, newChat]);
+    const updated = [...chats, newChat];
+    saveChats(updated);
+    // Sync to Supabase with real IDs
+    upsertChatDB({ ...newChat, venueId: venueId || '', artistId });
   }
   return chatId;
 }
 
 interface MessagesViewProps {
   perspective?: 'venue' | 'dj';
+  userId?: string;
 }
 
-const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue' }) => {
+const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', userId }) => {
   const [chats, setChats] = useState<Chat[]>(loadChats);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [newMessage, setNewMessage] = useState('');
@@ -117,8 +131,10 @@ const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue' }) =>
     );
     saveChats(updatedChats);
     setChats(updatedChats);
-    setSelectedChat(updatedChats.find(c => c.id === selectedChat.id)!);
+    const updatedChat = updatedChats.find(c => c.id === selectedChat.id)!;
+    setSelectedChat(updatedChat);
     setNewMessage('');
+    upsertChatDB(updatedChat);
   };
 
   const handleSelectChat = (chat: Chat) => {
