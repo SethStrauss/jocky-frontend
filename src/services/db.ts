@@ -132,19 +132,19 @@ export async function upsertVenueProfile(userId: string, profile: any): Promise<
 
 export function djProfileFromDB(row: any): any {
   return {
-    name: row.name || '',
-    bio: row.bio || '',
-    genres: row.genres || [],
-    category: row.category || 'Club DJ',
-    location: row.location || '',
-    photo: row.photo || '',
-    photoX: row.photo_x || 50,
-    photoY: row.photo_y || 50,
-    price: row.price || '',
-    spotify: row.spotify || '',
-    youtube: row.youtube || '',
-    manualGigs: row.manual_gigs || [],
-    pressKit: row.press_kit || null,
+    name: row.name ?? '',
+    bio: row.bio ?? '',
+    genres: row.genres ?? [],
+    category: row.category ?? 'Club DJ',
+    location: row.location ?? '',
+    photo: row.photo ?? '',
+    photoX: row.photo_x ?? 50,
+    photoY: row.photo_y ?? 50,
+    price: row.price ?? '',
+    spotify: row.spotify ?? '',
+    youtube: row.youtube ?? '',
+    manualGigs: row.manual_gigs ?? [],
+    pressKit: row.press_kit ?? null,
   };
 }
 

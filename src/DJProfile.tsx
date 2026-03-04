@@ -33,14 +33,14 @@ function getSpotifyEmbedUrl(url: string): string | null {
 const STORAGE_KEY = 'jocky_dj_profile';
 
 const defaults = {
-  name:       'DJ Strauss',
-  bio:        'Stockholm-based DJ with 5+ years of experience in House, Techno and Tech House. Known for high-energy sets and reading the crowd perfectly. Available for clubs, private events and festivals across Scandinavia and Europe.',
-  genres:     ['House', 'Techno', 'Tech House'],
+  name:       '',
+  bio:        '',
+  genres:     [] as string[],
   category:   'Club DJ',
-  location:   'Stockholm, Sweden',
+  location:   '',
   spotify:    '',
   youtube:    '',
-  price:      '5 000 – 10 000 SEK',
+  price:      '',
   photo:      '',
   photoX:     50,
   photoY:     50,
