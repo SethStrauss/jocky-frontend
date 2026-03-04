@@ -78,7 +78,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const allArtists: MarketplaceArtist[] = [getDJStraussListing()];
+  const allArtists: MarketplaceArtist[] = [];
 
   const filtered = allArtists.filter(a => {
     const matchesType = !artistType || a.type.toLowerCase().includes(artistType.toLowerCase());

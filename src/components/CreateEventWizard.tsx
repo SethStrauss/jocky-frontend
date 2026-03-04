@@ -382,7 +382,7 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
           )}
 
           {showMarketplacePicker && (() => {
-            const allMarketplace = [getDJStraussListing()];
+            const allMarketplace: MarketplaceArtist[] = [];
             const filtered = allMarketplace.filter(a =>
               !marketplaceSearch || a.name.toLowerCase().includes(marketplaceSearch.toLowerCase())
             );
