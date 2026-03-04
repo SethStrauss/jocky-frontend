@@ -40,7 +40,9 @@ export function loadConnections(): ArtistConnection[] {
 }
 
 export function saveConnections(conns: ArtistConnection[]) {
-  localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(conns));
+  const value = JSON.stringify(conns);
+  localStorage.setItem(CONNECTIONS_KEY, value);
+  window.dispatchEvent(new StorageEvent('storage', { key: CONNECTIONS_KEY, newValue: value }));
 }
 
 interface MarketplaceViewProps {
