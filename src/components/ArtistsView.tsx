@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { loadConnections, saveConnections, ArtistConnection, MarketplaceArtist } from './MarketplaceView';
 import { getDJPhoto } from '../utils/djPhoto';
+import { loadVenueName } from '../utils/venueProfile';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import './ArtistsView.css';
 
 const VENUE_ID = 'venue_default';
-const VENUE_NAME = 'Sturehof';
+const VENUE_NAME = loadVenueName();
 
 interface ArtistsViewProps {
   onMessage?: (artistId: string, artistName: string, venueName: string) => void;

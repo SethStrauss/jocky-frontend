@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Event, Artist } from '../types';
 import { getDJPhoto } from '../utils/djPhoto';
 import DateRangePicker from './DateRangePicker';
-import { getDJStraussListing, MarketplaceArtist } from './MarketplaceView';
+import { MarketplaceArtist } from './MarketplaceView';
+import { loadVenueName } from '../utils/venueProfile';
 import './CreateEventWizard.css';
 
 interface CreateEventWizardProps {
@@ -72,7 +73,7 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
   };
   const [startTime, setStartTime] = useState(initialTime || '20:00');
   const [endTime, setEndTime] = useState('23:00');
-  const [venue] = useState('Sturehof');
+  const [venue] = useState(loadVenueName());
   const [danceFloor, setDanceFloor] = useState('');
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');

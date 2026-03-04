@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getDJPhoto } from '../utils/djPhoto';
+import { loadVenueName } from '../utils/venueProfile';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import './MarketplaceView.css';
 
@@ -26,7 +27,7 @@ export interface ArtistConnection {
 }
 
 const VENUE_ID = 'venue_default';
-const VENUE_NAME = 'Sturehof';
+const VENUE_NAME = loadVenueName();
 const CONNECTIONS_KEY = 'jocky_artist_connections';
 
 export function loadConnections(): ArtistConnection[] {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Artist } from '../types';
+import { loadVenueName } from '../utils/venueProfile';
 import './ArtistProfileModal.css';
 
 interface ArtistProfileModalProps {
@@ -100,7 +101,7 @@ const ArtistProfileModal: React.FC<ArtistProfileModalProps> = ({
             <h3 className="section-title">Past Gigs</h3>
             <div className="past-gigs">
               <div className="past-gig-item">
-                <span className="gig-venue">Sturehof</span>
+                <span className="gig-venue">{loadVenueName()}</span>
                 <span className="gig-date">Feb 15, 2026</span>
                 <span className="gig-rating">⭐⭐⭐⭐⭐</span>
               </div>

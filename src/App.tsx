@@ -20,6 +20,7 @@ import BookArtistModal from './components/BookArtistModal';
 import VenueProfile from './components/VenueProfile';
 import { Event, Artist } from './types';
 import { getDJPhoto } from './utils/djPhoto';
+import { loadVenueName } from './utils/venueProfile';
 import './App.css';
 
 
@@ -171,7 +172,7 @@ function VenueApp({ onLogout }: { onLogout: () => void }) {
 
   return (
     <div className="app">
-      <Navigation activeTab={activeTab} onTabChange={(tab) => { setShowVenueProfile(false); handleTabChange(tab); }} onLogout={onLogout} onViewProfile={() => setShowVenueProfile(true)} unreadMessages={unreadMessages} />
+      <Navigation activeTab={activeTab} onTabChange={(tab) => { setShowVenueProfile(false); handleTabChange(tab); }} onLogout={onLogout} onViewProfile={() => setShowVenueProfile(true)} unreadMessages={unreadMessages} venueName={loadVenueName()} />
       {showVenueProfile && <VenueProfile onClose={() => setShowVenueProfile(false)} />}
       {!showVenueProfile && activeTab === 'events' && (
         <>

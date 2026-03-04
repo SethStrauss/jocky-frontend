@@ -15,7 +15,7 @@ const Navigation: React.FC<NavigationProps> = ({
   onTabChange,
   onLogout,
   onViewProfile,
-  venueName = 'Sturehof',
+  venueName = 'My Venue',
   unreadMessages = 0,
 }) => {
   const [showMenu, setShowMenu] = useState(false);

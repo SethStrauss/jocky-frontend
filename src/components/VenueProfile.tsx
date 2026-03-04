@@ -27,7 +27,7 @@ interface VenueData {
 const ARTIST_TYPE_OPTIONS = ['Live artist', 'DJ', 'Troubadour', 'Quizmaster', 'Band', 'Comedian'];
 
 const DEFAULT: VenueData = {
-  companyName: 'Sturehof',
+  companyName: '',
   address: '',
   openingHours: '',
   generalInfo: '',
