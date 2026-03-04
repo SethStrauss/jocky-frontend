@@ -117,7 +117,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, []);
+  }, [userId]);
 
   const [unreadMessages, setUnreadMessages] = useState(() => getUnreadCount('venue'));
 
