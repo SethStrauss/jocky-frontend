@@ -18,6 +18,7 @@ import EventDetailsModal from './components/EventDetailsModal';
 import ArtistProfileModal from './components/ArtistProfileModal';
 import BookArtistModal from './components/BookArtistModal';
 import VenueProfile from './components/VenueProfile';
+import DJOnboarding from './components/DJOnboarding';
 import { Event, Artist } from './types';
 import { getDJPhoto } from './utils/djPhoto';
 import { loadVenueName } from './utils/venueProfile';
@@ -703,6 +704,10 @@ function App() {
   const handleLogout = () => { setShowUserMenu(false); setActiveTab('events'); supabase.auth.signOut(); };
 
   if (userType === 'venue') return <VenueApp onLogout={handleLogout} userId={session.user.id} />;
+
+  console.log('DJ check — userType:', userType, 'onboarded:', session.user.user_metadata?.onboarded, 'metadata:', session.user.user_metadata);
+
+  if (userType !== 'venue' && !session.user.user_metadata?.onboarded) return <DJOnboarding onComplete={() => {}} />;
 
   return (
     <div className="dj-app">
