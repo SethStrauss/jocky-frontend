@@ -282,6 +282,10 @@ export async function upsertChatDB(chat: any): Promise<void> {
 
 // ── Bootstrap: load all user data into localStorage on login ──────────────────
 
+function dispatch(key: string) {
+  window.dispatchEvent(new StorageEvent('storage', { key }));
+}
+
 export async function loadUserDataToLocalStorage(userId: string, role: 'venue' | 'dj'): Promise<void> {
   if (role === 'venue') {
     const [events, profile, conns, chats] = await Promise.all([
@@ -291,9 +295,14 @@ export async function loadUserDataToLocalStorage(userId: string, role: 'venue' |
       fetchChatsForVenue(userId),
     ]);
     localStorage.setItem('jocky_events', JSON.stringify(events));
-    if (profile) localStorage.setItem('jocky_venue_profile', JSON.stringify(venueProfileFromDB(profile)));
+    if (profile) {
+      localStorage.setItem('jocky_venue_profile', JSON.stringify(venueProfileFromDB(profile)));
+      dispatch('jocky_venue_profile');
+    }
     localStorage.setItem('jocky_artist_connections', JSON.stringify(conns));
+    dispatch('jocky_artist_connections');
     localStorage.setItem('jocky_chats', JSON.stringify(chats));
+    dispatch('jocky_chats');
   } else {
     const [profile, conns, chats, djEvents] = await Promise.all([
       fetchDJProfile(userId),
@@ -301,10 +310,16 @@ export async function loadUserDataToLocalStorage(userId: string, role: 'venue' |
       fetchChatsForDJ(userId),
       fetchDJRelatedEvents(userId),
     ]);
-    if (profile) localStorage.setItem('jocky_dj_profile', JSON.stringify(djProfileFromDB(profile)));
+    if (profile) {
+      localStorage.setItem('jocky_dj_profile', JSON.stringify(djProfileFromDB(profile)));
+      dispatch('jocky_dj_profile');
+    }
     localStorage.setItem('jocky_artist_connections', JSON.stringify(conns));
+    dispatch('jocky_artist_connections');
     localStorage.setItem('jocky_chats', JSON.stringify(chats));
+    dispatch('jocky_chats');
     localStorage.setItem('jocky_events', JSON.stringify(djEvents));
+    dispatch('jocky_events');
   }
 }
 

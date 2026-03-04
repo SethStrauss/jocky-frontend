@@ -35,6 +35,14 @@ let nextId = 100;
 
 function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }) {
   const [activeTab, setActiveTab] = useState<string>('events');
+  const [venueName, setVenueName] = useState(loadVenueName);
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === 'jocky_venue_profile') setVenueName(loadVenueName());
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
   const [showVenueProfile, setShowVenueProfile] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showBookArtistModal, setShowBookArtistModal] = useState(false);
@@ -178,7 +186,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
 
   return (
     <div className="app">
-      <Navigation activeTab={activeTab} onTabChange={(tab) => { setShowVenueProfile(false); handleTabChange(tab); }} onLogout={onLogout} onViewProfile={() => setShowVenueProfile(true)} unreadMessages={unreadMessages} venueName={loadVenueName()} />
+      <Navigation activeTab={activeTab} onTabChange={(tab) => { setShowVenueProfile(false); handleTabChange(tab); }} onLogout={onLogout} onViewProfile={() => setShowVenueProfile(true)} unreadMessages={unreadMessages} venueName={venueName} />
       {showVenueProfile && <VenueProfile onClose={() => setShowVenueProfile(false)} />}
       {!showVenueProfile && activeTab === 'events' && (
         <>
