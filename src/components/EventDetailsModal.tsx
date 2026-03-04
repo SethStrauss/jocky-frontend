@@ -18,14 +18,6 @@ function loadDanceFloors(): { id: string; name: string }[] {
   ];
 }
 
-function loadArtistProfile() {
-  try {
-    const saved = localStorage.getItem('jocky_dj_profile');
-    const defaults = { name: 'DJ Strauss', bio: '', genres: [] as string[], category: 'Club DJ', location: 'Stockholm', photo: '', photoX: 50, photoY: 50, pressKit: null as { name: string; data: string } | null };
-    if (saved) return { ...defaults, ...JSON.parse(saved) };
-    return defaults;
-  } catch { return { name: 'DJ Strauss', bio: '', genres: [] as string[], category: 'Club DJ', location: 'Stockholm', photo: '', photoX: 50, photoY: 50, pressKit: null }; }
-}
 
 interface EventDetailsModalProps {
   event: Event;
