@@ -12,6 +12,7 @@ export interface MarketplaceArtist {
   location: string;
   genres?: string[];
   priceRange?: string;
+  photo?: string;
 }
 
 export interface ArtistConnection {
@@ -68,6 +69,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
           location: p.location || '',
           genres: p.genres || [],
           priceRange: p.price || '',
+          photo: p.photo || '',
         }))
       );
     });
@@ -167,7 +169,10 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
           return (
             <div key={artist.id} className="marketplace-card" style={{ cursor: 'pointer' }} onClick={() => setProfileArtist(artist)}>
               <div className="marketplace-card-image">
-                <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
+                {artist.photo
+                  ? <img src={artist.photo} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
+                }
               </div>
               <div className="marketplace-card-info">
                 <h3 className="artist-card-name">{artist.name}</h3>

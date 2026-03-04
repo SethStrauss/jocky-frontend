@@ -60,10 +60,12 @@ interface Props {
   onAdd: () => void;
 }
 
-const MarketplaceProfileModal: React.FC<Props> = ({ connectionStatus, onClose, onAdd }) => {
+const MarketplaceProfileModal: React.FC<Props> = ({ artist, connectionStatus, onClose, onAdd }) => {
   const [expanded, setExpanded] = useState(false);
   const profile = loadFullProfile();
-  const { photo, photoX, photoY, name, bio, genres, category, location, spotify, youtube, price, manualGigs } = profile;
+  const { photoX, photoY, bio, genres, category, location, spotify, youtube, price, manualGigs } = profile;
+  const photo = artist.photo || profile.photo;
+  const name = artist.name || profile.name;
 
   const pressKit = (profile as any).pressKit as { name: string; data: string } | null;
   const youtubeEmbed = getYouTubeEmbedUrl(youtube);
