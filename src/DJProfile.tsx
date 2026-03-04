@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { currentSession } from './currentUser';
 import { upsertDJProfile } from './services/db';
 import './DJProfile.css';
@@ -105,6 +105,28 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
 
   const [manualGigs, setManualGigs] = useState<Gig[]>(loadProfile().manualGigs || []);
   const [newGig, setNewGig] = useState({ venue: '', event: '', date: '' });
+
+  // Re-read from localStorage if another part of the app updates the profile (e.g. after onboarding)
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY) return;
+      const p = loadProfile();
+      setName(p.name);
+      setBio(p.bio);
+      setGenres(p.genres);
+      setCategory(p.category);
+      setLocation(p.location);
+      setSpotify(p.spotify);
+      setYoutube(p.youtube);
+      setPhoto(p.photo || '');
+      setPhotoX(p.photoX ?? 50);
+      setPhotoY(p.photoY ?? 50);
+      setPressKit(p.pressKit || null);
+      setManualGigs(p.manualGigs || []);
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

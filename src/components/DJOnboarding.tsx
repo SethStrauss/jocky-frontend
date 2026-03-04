@@ -59,7 +59,7 @@ const DJOnboarding: React.FC<DJOnboardingProps> = ({ onComplete }) => {
     };
     const STORAGE_KEY = 'jocky_dj_profile';
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
-    if (currentSession?.userId) upsertDJProfile(currentSession.userId, profileData);
+    if (currentSession?.userId) await upsertDJProfile(currentSession.userId, profileData);
     await supabase.auth.updateUser({ data: { onboarded: true } });
     onComplete();
   };
