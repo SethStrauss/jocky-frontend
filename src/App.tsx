@@ -20,9 +20,6 @@ import { Event, Artist } from './types';
 import { getDJPhoto } from './utils/djPhoto';
 import './App.css';
 
-const mockArtists: Artist[] = [
-  { id: '1', name: 'DJ Strauss', type: 'DJ', location: 'Stockholm', genres: ['House', 'Techno', 'Tech House'], about: 'Professional DJ based in Stockholm.', priceRange: '5000-10000', rating: 5.0, reviewCount: 1, experience: '5 years' },
-];
 
 let nextId = 100;
 

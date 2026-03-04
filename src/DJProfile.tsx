@@ -89,7 +89,7 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
   const [location, setLocation] = useState(initial.location);
   const [spotify,  setSpotify]  = useState(initial.spotify);
   const [youtube,  setYoutube]  = useState(initial.youtube);
-  const [price,    setPrice]    = useState(initial.price);
+  const [price] = useState(initial.price);
   const [newGenre, setNewGenre] = useState('');
 
   const [photo,    setPhoto]    = useState(initial.photo || '');
