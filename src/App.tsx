@@ -85,7 +85,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
   // Connected artists from the pool (accepted connections)
   const [poolArtists, setPoolArtists] = useState<Artist[]>(() =>
     loadConnections()
-      .filter(c => c.venueId === 'venue_default' && (c.status === 'accepted' || c.status === 'pending'))
+      .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
       .map(c => ({
         id: c.artistId,
         name: c.artistName,
@@ -102,7 +102,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       if (e.key === 'jocky_artist_connections') {
         setPoolArtists(
           loadConnections()
-            .filter(c => c.venueId === 'venue_default' && (c.status === 'accepted' || c.status === 'pending'))
+            .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
             .map(c => ({
               id: c.artistId,
               name: c.artistName,
@@ -145,7 +145,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
   const refreshPoolArtists = () => {
     setPoolArtists(
       loadConnections()
-        .filter(c => c.venueId === 'venue_default' && (c.status === 'accepted' || c.status === 'pending'))
+        .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
         .map(c => ({
           id: c.artistId,
           name: c.artistName,
