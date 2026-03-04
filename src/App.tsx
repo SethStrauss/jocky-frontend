@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Session } from '@supabase/supabase-js';
+import supabase from './supabase';
 import { Calendar, Building2, MessageCircle, List, CalendarDays, Clock, X } from 'lucide-react';
 import DJProfile from './DJProfile';
 import Navigation from './components/Navigation';
@@ -399,38 +401,95 @@ function RequestDetailsModal({ req, onClose }: { req: Request; onClose: () => vo
 
 // ── Login Page ────────────────────────────────────────────────────────────────
 
-function LoginPage({ onLogin }: { onLogin: (type: 'dj' | 'venue') => void }) {
-  const handleStartOver = () => {
-    localStorage.removeItem('jocky_events');
-    localStorage.removeItem('jocky_artist_connections');
-    localStorage.removeItem('jocky_chats');
-    window.location.reload();
+function LoginPage() {
+  const [role, setRole] = useState<'dj' | 'venue' | null>(null);
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      if (mode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { role } },
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!role) {
+    return (
+      <div className="login-page">
+        <div className="login-box">
+          <div className="login-logo">JOCKY</div>
+          <p className="login-sub">The platform connecting venues and artists</p>
+          <div className="login-options">
+            <button className="login-btn" onClick={() => setRole('venue')}>
+              <span>🏛</span>
+              <div>
+                <div className="login-btn-title">I'm a Venue</div>
+                <div className="login-btn-desc">Book artists for your events</div>
+              </div>
+            </button>
+            <button className="login-btn" onClick={() => setRole('dj')}>
+              <span>🎧</span>
+              <div>
+                <div className="login-btn-title">I'm an Artist</div>
+                <div className="login-btn-desc">Find gigs and manage bookings</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-page">
       <div className="login-box">
         <div className="login-logo">JOCKY</div>
-        <p className="login-sub">The platform connecting venues and artists</p>
-        <div className="login-options">
-          <button className="login-btn" onClick={() => onLogin('venue')}>
-            <span>🏛</span>
-            <div>
-              <div className="login-btn-title">I'm a Venue</div>
-              <div className="login-btn-desc">Book artists for your events</div>
-            </div>
+        <p className="login-sub">{role === 'venue' ? 'Venue login' : 'Artist login'}</p>
+        <form className="login-form" onSubmit={handleSubmit}>
+          <input
+            className="login-input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+          {error && <div className="login-error">{error}</div>}
+          <button className="login-submit" type="submit" disabled={loading}>
+            {loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'}
           </button>
-          <button className="login-btn" onClick={() => onLogin('dj')}>
-            <span>🎧</span>
-            <div>
-              <div className="login-btn-title">I'm an Artist</div>
-              <div className="login-btn-desc">Find gigs and manage bookings</div>
-            </div>
-          </button>
-        </div>
-        <button onClick={handleStartOver} style={{ marginTop: 32, background: 'none', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.4)', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontSize: 13 }}>
-          Start over
+        </form>
+        <button className="login-toggle" onClick={() => { setMode(m => m === 'login' ? 'signup' : 'login'); setError(''); }}>
+          {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
         </button>
+        <button className="login-back" onClick={() => { setRole(null); setError(''); }}>← Back</button>
       </div>
     </div>
   );
@@ -439,7 +498,7 @@ function LoginPage({ onLogin }: { onLogin: (type: 'dj' | 'venue') => void }) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [userType, setUserType] = useState<'dj' | 'venue' | null>(null);
   const [activeTab, setActiveTab] = useState<'events' | 'venues' | 'messages'>('events');
   const [eventTab, setEventTab] = useState<'requests' | 'upcoming'>('requests');
@@ -495,9 +554,22 @@ function App() {
     return () => window.removeEventListener('storage', handler);
   }, []);
 
+  // Supabase auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setUserType(data.session?.user?.user_metadata?.role ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUserType(session?.user?.user_metadata?.role ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Re-load requests and unread counts when DJ logs in
   useEffect(() => {
-    if (loggedIn && userType === 'dj') {
+    if (session && userType === 'dj') {
       setRequests(loadRequestsFromStorage());
       setUpcoming(loadUpcomingFromStorage());
       setDjUnread(getUnreadCount('dj'));
@@ -505,9 +577,10 @@ function App() {
         loadConnections().filter(c => c.artistId === 'dj_strauss' && c.status === 'pending').length
       );
     }
-  }, [loggedIn, userType]);
+  }, [session, userType]);
 
-  if (!loggedIn) return <LoginPage onLogin={(type) => { setUserType(type); setLoggedIn(true); }} />;
+  if (session === undefined) return <div className="login-page"><div style={{ color: 'white', margin: 'auto' }}>Loading…</div></div>;
+  if (!session) return <LoginPage />;
 
   const handleAccept = (id: string) => {
     const req = requests.find(r => r.id === id);
@@ -558,7 +631,7 @@ function App() {
     setRequests(prev => prev.map(r => r.id === id ? { ...r, gigStatus: 'offer_pending' as GigStatus } : r));
   };
 
-  const handleLogout = () => { setShowUserMenu(false); setLoggedIn(false); setUserType(null); setActiveTab('events'); };
+  const handleLogout = () => { setShowUserMenu(false); setActiveTab('events'); supabase.auth.signOut(); };
 
   if (userType === 'venue') return <VenueApp onLogout={handleLogout} />;
 
