@@ -705,9 +705,7 @@ function App() {
 
   if (userType === 'venue') return <VenueApp onLogout={handleLogout} userId={session.user.id} />;
 
-  console.log('DJ check — userType:', userType, 'onboarded:', session.user.user_metadata?.onboarded, 'metadata:', session.user.user_metadata);
-
-  if (userType !== 'venue' && !session.user.user_metadata?.onboarded) return <DJOnboarding onComplete={() => {}} />;
+  if (!session.user.user_metadata?.onboarded) return <DJOnboarding onComplete={() => {}} />;
 
   return (
     <div className="dj-app">
