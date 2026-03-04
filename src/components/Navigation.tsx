@@ -10,6 +10,14 @@ interface NavigationProps {
   unreadMessages?: number;
 }
 
+function loadVenuePhoto(): string {
+  try {
+    const s = localStorage.getItem('jocky_venue_profile');
+    if (s) return JSON.parse(s).photo || '';
+  } catch {}
+  return '';
+}
+
 const Navigation: React.FC<NavigationProps> = ({
   activeTab,
   onTabChange,
@@ -20,6 +28,15 @@ const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [venuePhoto, setVenuePhoto] = useState(loadVenuePhoto);
+
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key === 'jocky_venue_profile') setVenuePhoto(loadVenuePhoto());
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   useEffect(() => {
     if (!showMenu) return;
@@ -110,10 +127,12 @@ const Navigation: React.FC<NavigationProps> = ({
         <div className="nav-right">
           <div className="nav-profile-menu" ref={menuRef}>
             <div className="nav-profile-pill" onClick={() => setShowMenu(p => !p)}>
-              <div className="nav-profile-avatar">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clipRule="evenodd" />
-                </svg>
+              <div className="nav-profile-avatar" style={venuePhoto ? { backgroundImage: `url(${venuePhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                {!venuePhoto && (
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clipRule="evenodd" />
+                  </svg>
+                )}
               </div>
               <span className="nav-profile-name">{venueName}</span>
               <svg className="nav-profile-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
