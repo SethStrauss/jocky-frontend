@@ -1,0 +1,561 @@
+.bam-section {
+  padding: 20px 24px;
+}
+
+.bam-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 14px;
+}
+
+.bam-artists-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.bam-artists-header .bam-section-title {
+  margin: 0;
+}
+
+.bam-divider {
+  height: 1px;
+  background: #E5E7EB;
+}
+
+.bam-pool-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* Mode Tabs */
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.mode-tab {
+  padding: 7px 14px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.mode-tab.active {
+  background: #DBEAFE;
+  border-color: #3B82F6;
+  color: #1E40AF;
+}
+
+/* Venue Filters */
+.venue-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.book-artist-modal {
+  max-width: 960px !important;
+}
+
+.book-artist-modal .step-content {
+  max-width: none;
+}
+
+/* Find on Marketplace button */
+.btn-find-marketplace {
+  padding: 10px 20px;
+  background: white;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.btn-find-marketplace:hover {
+  border-color: #9CA3AF;
+  background: #F9FAFB;
+}
+
+/* Marketplace popup */
+.bam-mp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.bam-mp-modal {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1100px;
+  height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+
+.bam-mp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 28px 40px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+}
+
+.bam-mp-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.bam-mp-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.bam-mp-close {
+  background: #F3F4F6;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+  color: #6B7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.bam-mp-close:hover { background: #E5E7EB; color: #111827; }
+
+.bam-mp-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 40px;
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+}
+
+.bam-mp-filters .search-box {
+  margin-bottom: 0;
+}
+
+.bam-mp-filters select {
+  padding: 10px 36px 10px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+  background: white;
+  cursor: pointer;
+  min-width: 160px;
+}
+.bam-mp-filters select:focus { outline: none; border-color: #9CA3AF; }
+
+/* Cards grid — matches marketplace page exactly */
+.bam-mp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 32px 40px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.bam-mp-card {
+  cursor: pointer;
+  position: relative;
+}
+
+.bam-mp-card-selected {
+  outline: 2px solid #3B82F6;
+  border-radius: 8px;
+}
+
+.bam-mp-select-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.bam-mp-btn-default { background: #F3F4F6; color: #374151; }
+.bam-mp-btn-default:hover { background: #E5E7EB; }
+.bam-mp-btn-selected { background: #DBEAFE; color: #1D4ED8; }
+.bam-mp-btn-pool { background: #D1FAE5; color: #065F46; cursor: default; }
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.events-table thead {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+}
+
+.events-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #E5E7EB;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.sort-arrow {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-left: 4px;
+}
+
+.events-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #F3F4F6;
+  font-size: 14px;
+  color: #374151;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.events-table tr {
+  cursor: pointer;
+}
+
+.events-table tr:hover td {
+  background: #F9FAFB;
+}
+
+.events-table tr.row-selected td {
+  background: #EFF6FF;
+}
+
+.events-table tr.row-selected:hover td {
+  background: #DBEAFE;
+}
+
+/* Status pills */
+.et-status-pill {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.et-status-confirmed  { background: #D1FAE5; color: #065F46; }
+.et-status-open       { background: #DBEAFE; color: #1E40AF; }
+.et-status-offered    { background: #FEF3C7; color: #92400E; }
+.et-status-declined   { background: #FEE2E2; color: #991B1B; }
+.et-status-created    { background: #F3F4F6; color: #6B7280; }
+
+/* Artist avatar stack */
+.et-artist-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.et-avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.et-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: linear-gradient(135deg, #EF4444, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.et-avatar + .et-avatar {
+  margin-left: -8px;
+}
+
+.et-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.et-artist-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Edit button */
+.et-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9CA3AF;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.et-edit-btn:hover {
+  color: #374151;
+  background: #F3F4F6;
+}
+
+.col-artist {
+  width: 140px;
+  white-space: nowrap;
+}
+
+.event-name-cell {
+  font-weight: 600;
+  color: #111827;
+}
+
+.venue-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.venue-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.venue-floor {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+/* Artists Step - Vertical Sections */
+.artists-step {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.artist-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #E5E7EB;
+}
+
+.section-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.count {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #9CA3AF;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 12px 12px 44px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Marketplace Filters */
+.marketplace-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.marketplace-filters select {
+  padding: 10px 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.marketplace-filters select:focus {
+  outline: none;
+  border-color: #3B82F6;
+}
+
+/* Artists List */
+.artists-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artist-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.artist-card:hover {
+  border-color: #3B82F6;
+  background: #F9FAFB;
+}
+
+.artist-card.selected {
+  border-color: #3B82F6;
+  background: #EFF6FF;
+}
+
+.artist-card input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #3B82F6;
+}
+
+.artist-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.artist-info {
+  flex: 1;
+}
+
+.artist-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.artist-genres {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.artist-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+/* Marketplace Section Styling */
+.marketplace-section {
+  background: #F9FAFB;
+  padding: 20px;
+  border-radius: 12px;
+}

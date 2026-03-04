@@ -1,0 +1,159 @@
+.drp-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: none;
+  padding: 24px;
+  margin-top: 8px;
+  border: 1px solid #E5E7EB;
+  user-select: none;
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+.drp-calendars {
+  display: flex;
+  align-items: flex-start;
+}
+
+.drp-nav {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #374151;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.drp-nav:hover { background: #F3F4F6; }
+
+.drp-month {
+  width: 280px;
+}
+
+.drp-month-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+.drp-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+}
+
+.drp-day-header {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9CA3AF;
+  padding: 4px 0;
+}
+
+.drp-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px 0;
+}
+
+.drp-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  cursor: pointer;
+}
+
+.drp-cell--empty {
+  cursor: default;
+}
+
+.drp-day-num {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 15px;
+  color: #111827;
+  transition: background 0.1s, color 0.1s;
+}
+
+.drp-cell:not(.drp-cell--empty):not(.drp-cell--selected):not(.drp-cell--preview-add):hover .drp-day-num {
+  background: #F3F4F6;
+}
+
+/* Selected date */
+.drp-cell--selected .drp-day-num {
+  background: #111827;
+  color: white;
+  font-weight: 700;
+}
+
+/* Drag preview — adding */
+.drp-cell--preview-add .drp-day-num {
+  background: #D1D5DB;
+  color: #111827;
+}
+
+/* Drag preview — removing */
+.drp-cell--preview-remove .drp-day-num {
+  background: #FEE2E2;
+  color: #EF4444;
+  text-decoration: line-through;
+}
+
+.drp-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #F3F4F6;
+}
+
+.drp-count {
+  font-size: 14px;
+  color: #6B7280;
+  flex: 1;
+}
+
+.drp-clear {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: inherit;
+  padding: 8px 12px;
+}
+
+.drp-clear:hover { color: #111827; }
+
+.drp-close {
+  background: #111827;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.drp-close:hover { background: #374151; }

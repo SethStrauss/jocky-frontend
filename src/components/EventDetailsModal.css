@@ -1,0 +1,495 @@
+.event-details-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.event-details-modal .modal-header {
+  padding: 24px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.event-details-modal .modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-open {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.status-created {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.status-offered {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.status-confirmed {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.status-declined {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.event-info {
+  padding: 24px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #F3F4F6;
+  gap: 12px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B7280;
+  min-width: 100px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #111827;
+  flex: 1;
+}
+
+.edm-artist-card {
+  margin: 0 24px 0;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  background: #F9FAFB;
+}
+
+.edm-artist-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.edm-artist-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EF4444, #7c3aed);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+}
+
+.edm-artist-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.edm-artist-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.edm-artist-sub {
+  font-size: 13px;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.edm-artist-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.edm-genre-tag {
+  background: #E5E7EB;
+  color: #374151;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.edm-artist-bio {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4B5563;
+  margin: 0 0 12px;
+}
+
+.edm-presskit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #EF4444;
+  text-decoration: none;
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 6px;
+  padding: 5px 10px;
+  transition: background 0.15s;
+}
+.edm-presskit-btn:hover { background: #FEF2F2; }
+
+.send-offer-section {
+  padding: 24px;
+  background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+}
+
+.send-offer-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+}
+
+.artist-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  background: white;
+}
+
+.artist-select:focus {
+  outline: none;
+  border-color: #EF4444;
+}
+
+.btn-send-offer {
+  width: 100%;
+  padding: 12px 24px;
+  background: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-send-offer:hover:not(:disabled) {
+  background: #DC2626;
+}
+
+.btn-send-offer:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-message {
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-message-open {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.edm-checks-section {
+  margin: 0 24px 16px;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.edm-checks-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #F9FAFB;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  text-align: left;
+}
+
+.edm-checks-toggle:hover {
+  background: #F3F4F6;
+}
+
+.edm-checks-count {
+  background: #DBEAFE;
+  color: #1E40AF;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+
+.edm-checks-count--offered {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.edm-checks-chevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  color: #6B7280;
+}
+
+.edm-checks-chevron.open {
+  transform: rotate(180deg);
+}
+
+.edm-checks-list {
+  border-top: 1px solid #E5E7EB;
+}
+
+.edm-check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.edm-check-row:last-child {
+  border-bottom: none;
+}
+
+.edm-check-status {
+  margin-left: auto;
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.edm-check-empty {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+.status-message-offered {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.status-message-confirmed {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.edm-confirmed-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.edm-confirmed-artist {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edm-confirmed-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EF4444, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  border: 2px solid rgba(6,95,70,0.2);
+}
+
+.edm-confirmed-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn-message-artist-event {
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #EF4444;
+  color: #EF4444;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-message-artist-event:hover {
+  background: #FEF2F2;
+}
+
+.btn-delete-event {
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid #EF4444;
+  color: #EF4444;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.btn-delete-event:hover:not(:disabled) {
+  background: #FEF2F2;
+}
+
+.btn-delete-event:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Edit mode */
+.edm-btn-edit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #F3F4F6;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.edm-btn-edit:hover { background: #E5E7EB; }
+.edm-btn-edit.active {
+  background: #111827;
+  color: white;
+}
+
+.edm-btn-save {
+  padding: 7px 16px;
+  background: #111827;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.edm-btn-save:hover { background: #374151; }
+
+
+.edm-name-input {
+  width: 100%;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  border: none;
+  border-bottom: 2px solid #E5E7EB;
+  outline: none;
+  padding: 0 0 4px;
+  margin-bottom: 8px;
+  background: transparent;
+}
+.edm-name-input:focus { border-bottom-color: #111827; }
+
+.edm-input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #D1D5DB;
+  border-radius: 7px;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  background: white;
+}
+.edm-input:focus { outline: none; border-color: #9CA3AF; }
+
+.edm-select {
+  padding: 7px 10px;
+  border: 1px solid #D1D5DB;
+  border-radius: 7px;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+}
+.edm-select:focus { outline: none; border-color: #9CA3AF; }
+
+.edm-textarea {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #D1D5DB;
+  border-radius: 7px;
+  font-size: 14px;
+  color: #111827;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 72px;
+}
+.edm-textarea:focus { outline: none; border-color: #9CA3AF; }
+
+.edm-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}

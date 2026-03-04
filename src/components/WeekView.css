@@ -1,0 +1,324 @@
+.week-view {
+  padding: 32px 48px;
+  background: #F9FAFB;
+  min-height: calc(100vh - 64px);
+}
+
+/* Header - same as CalendarView */
+.week-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.week-header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.week-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.week-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Week Navigation */
+.week-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.week-date-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.week-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Week Grid Container */
+.week-grid-container {
+  background: white;
+  border: 2px solid #3B82F6;
+  border-radius: 8px;
+  overflow: visible;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-width: 100%;
+}
+
+/* Corner cell */
+.time-column-header {
+  background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+  border-right: 1px solid #E5E7EB;
+}
+
+/* Day headers */
+.week-day-header {
+  padding: 16px;
+  text-align: center;
+  background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+  border-right: 1px solid #E5E7EB;
+}
+
+.week-day-header:last-child {
+  border-right: none;
+}
+
+.day-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.day-date {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Time labels */
+.time-label {
+  padding: 12px 16px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6B7280;
+  background: #FAFAFA;
+  border-right: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Time cells */
+.week-time-cell {
+  min-height: 60px;
+  border-right: 1px solid #E5E7EB;
+  border-bottom: 1px solid #E5E7EB;
+  background: white;
+  position: relative;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.week-time-cell:hover {
+  background: #F0F9FF;
+}
+
+.week-time-cell:nth-child(8n) {
+  border-right: none;
+}
+
+/* Grid lines styling */
+.week-grid > div:nth-child(n+9):nth-child(-n+16) {
+  /* First time row (14:00) - lighter border */
+}
+
+.week-grid > div:nth-last-child(-n+8) {
+  /* Last row - no bottom border */
+  border-bottom: none;
+}
+
+/* Week Event Badges */
+.week-event-badge {
+  background: #EFF6FF;
+  border-left: 4px solid #3B82F6;
+  padding: 8px;
+  margin: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.week-event-badge:hover {
+  background: #DBEAFE;
+  transform: translateX(2px);
+}
+
+/* Status Colors */
+.week-event-status-open,
+.week-event-status-created {
+  background: #DBEAFE;
+  border-left-color: #3B82F6;
+}
+.week-event-status-open .week-event-name,
+.week-event-status-created .week-event-name { color: #1E40AF; }
+.week-event-status-open .week-event-time,
+.week-event-status-created .week-event-time { color: #3B82F6; }
+
+.week-event-status-offered {
+  background: #FEF3C7;
+  border-left-color: #FBBF24;
+}
+.week-event-status-offered .week-event-name { color: #92400E; }
+.week-event-status-offered .week-event-time { color: #B45309; }
+
+.week-event-status-confirmed {
+  background: #D1FAE5;
+  border-left-color: #34D399;
+}
+.week-event-status-confirmed .week-event-name { color: #065F46; }
+.week-event-status-confirmed .week-event-time { color: #047857; }
+
+.week-event-status-declined {
+  background: #FEE2E2;
+  border-left-color: #F87171;
+}
+.week-event-status-declined .week-event-name { color: #991B1B; }
+.week-event-status-declined .week-event-time { color: #B91C1C; }
+
+.week-event-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.week-event-dj-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3B82F6;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.week-event-status-offered .week-event-dj-avatar { background: #D97706; }
+.week-event-status-confirmed .week-event-dj-avatar { background: #059669; }
+.week-event-status-declined .week-event-dj-avatar { background: #DC2626; }
+
+.week-event-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1E40AF;
+  flex: 1;
+}
+
+.week-event-time {
+  font-size: 11px;
+  color: #6B7280;
+}
+
+
+.week-event-badge {
+  position: relative;
+}
+
+.event-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 100;
+  white-space: nowrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.week-event-badge:hover .event-tooltip {
+  display: flex;
+}
+
+.event-tooltip-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.event-tooltip-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.week-event-badge {
+  overflow: visible !important;
+  position: relative;
+}
+
+.event-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 9999;
+  white-space: nowrap;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.week-event-badge:hover .event-tooltip {
+  display: flex !important;
+}
+
+.event-tooltip-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.event-tooltip-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.week-event-status-created {
+  background: #F3F4F6;
+  border-left-color: #9CA3AF;
+}
+.week-event-status-created .week-event-name { color: #374151; }
+.week-event-status-created .week-event-time { color: #6B7280; }
