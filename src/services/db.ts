@@ -299,7 +299,9 @@ export async function loadUserDataToLocalStorage(userId: string, role: 'venue' |
       fetchConnectionsForVenue(userId),
       fetchChatsForVenue(userId),
     ]);
-    localStorage.setItem('jocky_events', JSON.stringify(events));
+    const eventsJSON = JSON.stringify(events);
+    localStorage.setItem('jocky_events', eventsJSON);
+    window.dispatchEvent(new StorageEvent('storage', { key: 'jocky_events', newValue: eventsJSON }));
     if (profile) {
       localStorage.setItem('jocky_venue_profile', JSON.stringify(venueProfileFromDB(profile)));
       dispatch('jocky_venue_profile');
@@ -323,8 +325,9 @@ export async function loadUserDataToLocalStorage(userId: string, role: 'venue' |
     dispatch('jocky_artist_connections');
     localStorage.setItem('jocky_chats', JSON.stringify(chats));
     dispatch('jocky_chats');
-    localStorage.setItem('jocky_events', JSON.stringify(djEvents));
-    dispatch('jocky_events');
+    const djEventsJSON = JSON.stringify(djEvents);
+    localStorage.setItem('jocky_events', djEventsJSON);
+    window.dispatchEvent(new StorageEvent('storage', { key: 'jocky_events', newValue: djEventsJSON }));
   }
 }
 
