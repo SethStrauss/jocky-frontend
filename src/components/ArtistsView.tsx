@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { loadConnections, saveConnections, ArtistConnection, MarketplaceArtist } from './MarketplaceView';
 import { loadVenueName } from '../utils/venueProfile';
 import { currentSession } from '../currentUser';
-import { removeConnectionDB } from '../services/db';
+import { removeConnectionDB, fetchAllDJProfiles } from '../services/db';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import './ArtistsView.css';
 
 interface ArtistsViewProps {
   onMessage?: (artistId: string, artistName: string, venueName: string) => void;
+  artists?: { id: string; image?: string }[];
 }
 
-const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
+const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage, artists = [] }) => {
   const VENUE_ID = currentSession?.userId || 'venue_default';
   const VENUE_NAME = loadVenueName();
   const [connections, setConnections] = useState<ArtistConnection[]>(() =>
@@ -19,6 +20,15 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [profileArtist, setProfileArtist] = useState<MarketplaceArtist | null>(null);
+  const [djPhotos, setDjPhotos] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchAllDJProfiles().then(profiles => {
+      const map: Record<string, string> = {};
+      profiles.forEach((p: any) => { if (p.photo) map[p.id] = p.photo; });
+      setDjPhotos(map);
+    });
+  }, []);
 
   useEffect(() => {
     const handler = (e: StorageEvent) => {
@@ -89,14 +99,16 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
               </div>
             )}
 
-            {displayList.map(conn => (
+            {displayList.map(conn => {
+              const photo = djPhotos[conn.artistId] || conn.artistPhoto || artists.find(a => a.id === conn.artistId)?.image || '';
+              return (
               <div key={conn.id} className={`artist-pool-card ${conn.status === 'pending' ? 'artist-pool-card--pending' : ''}`}
-                onClick={() => setProfileArtist({ id: conn.artistId, name: conn.artistName, type: conn.artistType, location: conn.artistLocation, genres: conn.artistGenres, photo: conn.artistPhoto || '' })}
+                onClick={() => setProfileArtist({ id: conn.artistId, name: conn.artistName, type: conn.artistType, location: conn.artistLocation, genres: conn.artistGenres, photo })}
                 style={{ cursor: 'pointer' }}
               >
                 <div className="pool-avatar">
-                  {conn.artistPhoto
-                    ? <img src={conn.artistPhoto} alt={conn.artistName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                  {photo
+                    ? <img src={photo} alt={conn.artistName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                     : conn.artistName.charAt(0)
                   }
                 </div>
@@ -121,7 +133,8 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage }) => {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

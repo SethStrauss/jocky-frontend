@@ -97,37 +97,35 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       }))
   );
 
+  const loadAndEnrichPoolArtists = async () => {
+    const fromConnections = loadConnections()
+      .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
+      .map(c => ({
+        id: c.artistId,
+        name: c.artistName,
+        type: c.artistType,
+        location: c.artistLocation,
+        genres: c.artistGenres,
+        about: '',
+        image: c.artistPhoto || '',
+      }));
+    const profiles = await fetchAllDJProfiles();
+    setPoolArtists(fromConnections.map(artist => {
+      const profile = profiles.find((p: any) => p.id === artist.id);
+      return profile?.photo ? { ...artist, image: profile.photo } : artist;
+    }));
+  };
+
   useEffect(() => {
+    loadAndEnrichPoolArtists();
     const handler = (e: StorageEvent) => {
       if (e.key === 'jocky_artist_connections') {
-        setPoolArtists(
-          loadConnections()
-            .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
-            .map(c => ({
-              id: c.artistId,
-              name: c.artistName,
-              type: c.artistType,
-              location: c.artistLocation,
-              genres: c.artistGenres,
-              about: '',
-              image: c.artistPhoto || '',
-            }))
-        );
+        loadAndEnrichPoolArtists();
       }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, [userId]);
-
-  // Enrich poolArtists with photos from Supabase (connections table doesn't store photos)
-  useEffect(() => {
-    fetchAllDJProfiles().then(profiles => {
-      setPoolArtists(prev => prev.map(artist => {
-        const profile = profiles.find((p: any) => p.id === artist.id);
-        return profile?.photo ? { ...artist, image: profile.photo } : artist;
-      }));
-    });
-  }, []);
 
   const [unreadMessages, setUnreadMessages] = useState(() => getUnreadCount('venue'));
 
@@ -152,21 +150,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const refreshPoolArtists = () => {
-    setPoolArtists(
-      loadConnections()
-        .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
-        .map(c => ({
-          id: c.artistId,
-          name: c.artistName,
-          type: c.artistType,
-          location: c.artistLocation,
-          genres: c.artistGenres,
-          about: '',
-          image: c.artistPhoto || '',
-        }))
-    );
-  };
+  const refreshPoolArtists = () => { loadAndEnrichPoolArtists(); };
 
 
   const saveEvents = (updated: Event[]) => {
@@ -212,7 +196,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         </>
       )}
       {!showVenueProfile && activeTab === 'artists' && (
-        <ArtistsView onMessage={(artistId, artistName, venueName) => {
+        <ArtistsView artists={poolArtists} onMessage={(artistId, artistName, venueName) => {
           ensureChat(artistId, artistName, venueName, userId);
           markAllRead('venue');
           setUnreadMessages(0);

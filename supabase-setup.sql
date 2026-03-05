@@ -54,6 +54,7 @@ create table if not exists public.connections (
 alter table public.connections enable row level security;
 create policy "Anyone can read connections" on public.connections for select using (true);
 create policy "Anyone can manage connections" on public.connections for all using (true);
+alter table public.connections add column if not exists artist_photo text default '';
 
 -- Chats
 create table if not exists public.chats (
