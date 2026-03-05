@@ -94,6 +94,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         genres: c.artistGenres,
         about: '',
         image: c.artistPhoto || '',
+        status: c.status as 'accepted' | 'pending',
       }))
   );
 
@@ -110,6 +111,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         genres: c.artistGenres,
         about: '',
         image: c.artistPhoto || '',
+        status: c.status as 'accepted' | 'pending',
       }));
     const profiles = await fetchAllDJProfiles();
     setAllDJProfilesCache(profiles);
@@ -251,7 +253,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
           }
         }
         setShowBookArtistModal(false);
-      }} artists={poolArtists} events={events} />}
+      }} artists={poolArtists.filter(a => a.status === 'accepted')} events={events} />}
     </div>
   );
 }
