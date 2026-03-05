@@ -72,6 +72,11 @@ export async function deleteEventDB(eventId: string): Promise<void> {
   if (error) console.error('deleteEventDB:', error);
 }
 
+export async function updateEventStatusDB(eventId: string, fields: Record<string, any>): Promise<void> {
+  const { error } = await supabase.from('events').update(fields).eq('id', eventId);
+  if (error) console.error('updateEventStatusDB:', error);
+}
+
 export async function fetchDJRelatedEvents(djId: string): Promise<Event[]> {
   const { data, error } = await supabase
     .from('events')

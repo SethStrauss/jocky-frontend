@@ -25,7 +25,7 @@ import { loadVenueName } from './utils/venueProfile';
 import { setCurrentSession } from './currentUser';
 import {
   loadUserDataToLocalStorage, clearUserLocalStorage,
-  upsertEvents, deleteEventDB, fetchAllDJProfiles,
+  upsertEvents, deleteEventDB, fetchAllDJProfiles, updateEventStatusDB,
 } from './services/db';
 import './App.css';
 
@@ -672,6 +672,9 @@ function App() {
       setUpcoming(prev => [...prev, confirmed]);
       setRequests(prev => prev.filter(r => r.id !== id));
       updateEventStatusInStorage(id, 'confirmed');
+      // Sync to Supabase so venue sees confirmed status on next login
+      const djName = (() => { try { return JSON.parse(localStorage.getItem('jocky_dj_profile') || '{}').name || ''; } catch { return ''; } })();
+      updateEventStatusDB(id, { status: 'confirmed', artist_id: djUserId, artist_name: djName });
     }
   };
 
@@ -689,10 +692,13 @@ function App() {
             ),
           } : e);
           localStorage.setItem('jocky_events', JSON.stringify(updated));
+          const updatedEvent = updated.find((e: any) => e.id === id);
+          if (updatedEvent) updateEventStatusDB(id, { interest_checks: updatedEvent.interestChecks });
         }
       } catch {}
     } else {
       updateEventStatusInStorage(id, 'declined');
+      updateEventStatusDB(id, { status: 'declined' });
     }
     setRequests(prev => prev.filter(r => r.id !== id));
   };
@@ -709,6 +715,8 @@ function App() {
           ),
         } : e);
         localStorage.setItem('jocky_events', JSON.stringify(updated));
+        const updatedEvent = updated.find((e: any) => e.id === id);
+        if (updatedEvent) updateEventStatusDB(id, { interest_checks: updatedEvent.interestChecks });
       }
     } catch {}
     setRequests(prev => prev.map(r => r.id === id ? { ...r, gigStatus: 'offer_pending' as GigStatus } : r));
