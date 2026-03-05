@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { currentSession } from '../currentUser';
-import { upsertVenueProfile } from '../services/db';
+import { upsertVenueProfile, uploadVenuePhoto } from '../services/db';
 import './VenueProfile.css';
 
 interface VenueProfileProps {
@@ -86,14 +86,18 @@ const VenueProfile: React.FC<VenueProfileProps> = ({ onClose }) => {
     const reader = new FileReader();
     reader.onload = ev => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         const max = 800;
         const scale = Math.min(1, max / Math.max(img.width, img.height));
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        update({ photo: canvas.toDataURL('image/jpeg', 0.8) });
+        let photoUrl = canvas.toDataURL('image/jpeg', 0.8);
+        if (currentSession?.userId) {
+          photoUrl = await uploadVenuePhoto(currentSession.userId, photoUrl);
+        }
+        update({ photo: photoUrl });
       };
       img.src = ev.target?.result as string;
     };
