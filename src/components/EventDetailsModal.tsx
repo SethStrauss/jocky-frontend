@@ -27,6 +27,8 @@ interface EventDetailsModalProps {
   onDelete?: () => void;
   onMessageArtist?: (artistId: string, artistName: string) => void;
   artists: Artist[];
+  djProfiles?: any[];
+  onArtistClick?: (artistId: string) => void;
 }
 
 const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
@@ -36,7 +38,9 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
   onUpdate,
   onDelete,
   onMessageArtist,
-  artists
+  artists,
+  djProfiles = [],
+  onArtistClick,
 }) => {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({
@@ -218,7 +222,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                 {interestChecks.length === 0
                   ? <div className="edm-check-empty">No interest checks sent yet</div>
                   : interestChecks.map((check, i) => {
-                      const photo = artists.find(a => a.id === check.artistId)?.image || '';
+                      const photo = djProfiles.find((p: any) => p.id === check.artistId)?.photo || artists.find(a => a.id === check.artistId)?.image || '';
                       const statusText = check.djResponse === 'interested' ? 'Interested ✓'
                         : check.djResponse === 'declined' ? 'Declined'
                         : 'Waiting for response…';
@@ -226,7 +230,7 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                         : check.djResponse === 'declined' ? '#EF4444'
                         : '#9CA3AF';
                       return (
-                        <div key={i} className="edm-check-row">
+                        <div key={i} className="edm-check-row" style={{ cursor: onArtistClick ? 'pointer' : 'default' }} onClick={() => onArtistClick?.(check.artistId)}>
                           <div className="edm-confirmed-avatar" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
                             {!photo && check.artistName.charAt(0).toUpperCase()}
                           </div>
@@ -254,9 +258,9 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                 {bookingRequests.length === 0
                   ? <div className="edm-check-empty">No offers sent yet</div>
                   : bookingRequests.map((req, i) => {
-                      const photo = artists.find(a => a.id === req.artistId)?.image || '';
+                      const photo = djProfiles.find((p: any) => p.id === req.artistId)?.photo || artists.find(a => a.id === req.artistId)?.image || '';
                       return (
-                        <div key={i} className="edm-check-row">
+                        <div key={i} className="edm-check-row" style={{ cursor: onArtistClick ? 'pointer' : 'default' }} onClick={() => onArtistClick?.(req.artistId)}>
                           <div className="edm-confirmed-avatar" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
                             {!photo && req.artistName.charAt(0).toUpperCase()}
                           </div>
@@ -271,11 +275,11 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
         )}
 
         {event.status === 'confirmed' && (() => {
-          const confirmedPhoto = artists.find(a => a.id === event.artistId)?.image || '';
+          const confirmedPhoto = djProfiles.find((p: any) => p.id === event.artistId)?.photo || artists.find(a => a.id === event.artistId)?.image || '';
           return (
             <div className="status-message status-message-confirmed edm-confirmed-row">
               <span>✓ Confirmed with</span>
-              <div className="edm-confirmed-artist">
+              <div className="edm-confirmed-artist" style={{ cursor: onArtistClick ? 'pointer' : 'default' }} onClick={() => event.artistId && onArtistClick?.(event.artistId)}>
                 <div
                   className="edm-confirmed-avatar"
                   style={confirmedPhoto ? { backgroundImage: `url(${confirmedPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}

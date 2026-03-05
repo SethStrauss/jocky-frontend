@@ -97,6 +97,8 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       }))
   );
 
+  const [allDJProfilesCache, setAllDJProfilesCache] = useState<any[]>([]);
+
   const loadAndEnrichPoolArtists = useCallback(async () => {
     const fromConnections = loadConnections()
       .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
@@ -110,6 +112,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         image: c.artistPhoto || '',
       }));
     const profiles = await fetchAllDJProfiles();
+    setAllDJProfilesCache(profiles);
     setPoolArtists(fromConnections.map(artist => {
       const profile = profiles.find((p: any) => p.id === artist.id);
       return profile?.photo ? { ...artist, image: profile.photo } : artist;
@@ -213,7 +216,17 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
           onUpdate={(updatedEvent?: Event) => { if (updatedEvent) { saveEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e)); setSelectedEvent(updatedEvent); } }}
           onDelete={() => { deleteEventDB(selectedEvent.id); saveEvents(events.filter(e => e.id !== selectedEvent.id)); setSelectedEvent(null); setSelectedEventDate(null); }}
           onMessageArtist={() => { setSelectedEvent(null); setSelectedEventDate(null); setActiveTab('requests'); }}
-          artists={poolArtists} />
+          artists={poolArtists}
+          djProfiles={allDJProfilesCache}
+          onArtistClick={(artistId) => {
+            const raw = allDJProfilesCache.find((p: any) => p.id === artistId);
+            if (raw) {
+              setSelectedArtist({ id: artistId, name: raw.name || '', type: raw.category || 'DJ', location: raw.location || '', genres: raw.genres || [], about: raw.bio || '', image: raw.photo || '', priceRange: raw.price || '' });
+            } else {
+              const pool = poolArtists.find(a => a.id === artistId);
+              if (pool) setSelectedArtist(pool);
+            }
+          }} />
       )}
       {selectedArtist && <ArtistProfileModal artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookNow={() => { setSelectedArtist(null); setShowCreateModal(true); }} onMessage={() => { setSelectedArtist(null); setActiveTab('messages'); }} />}
       {showBookArtistModal && <BookArtistModal onClose={() => setShowBookArtistModal(false)} onBook={(selectedArtistIds, selectedEventIds, mode) => {
