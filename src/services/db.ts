@@ -340,8 +340,18 @@ export async function loadUserDataToLocalStorage(userId: string, role: 'venue' |
       fetchDJRelatedEvents(userId),
     ]);
     if (profile) {
-      localStorage.setItem('jocky_dj_profile', JSON.stringify(djProfileFromDB(profile)));
-      dispatch('jocky_dj_profile');
+      const dbProfile = djProfileFromDB(profile);
+      // Preserve photo from localStorage if Supabase doesn't have one yet
+      // (e.g. right after onboarding before Storage bucket is set up)
+      if (!dbProfile.photo) {
+        try {
+          const existing = JSON.parse(localStorage.getItem('jocky_dj_profile') || '{}');
+          if (existing.photo) dbProfile.photo = existing.photo;
+        } catch {}
+      }
+      const profileJSON = JSON.stringify(dbProfile);
+      localStorage.setItem('jocky_dj_profile', profileJSON);
+      window.dispatchEvent(new StorageEvent('storage', { key: 'jocky_dj_profile', newValue: profileJSON }));
     }
     localStorage.setItem('jocky_artist_connections', JSON.stringify(conns));
     dispatch('jocky_artist_connections');
