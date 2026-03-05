@@ -27,6 +27,7 @@ create table if not exists public.venue_profiles (
 );
 alter table public.venue_profiles enable row level security;
 create policy "Users manage own venue profile" on public.venue_profiles for all using (auth.uid() = id);
+create policy "Anyone can read venue profiles" on public.venue_profiles for select using (true);
 
 -- DJ profiles
 create table if not exists public.dj_profiles (

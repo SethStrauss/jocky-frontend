@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { loadConnections, saveConnections, ArtistConnection } from './MarketplaceView';
 import { updateConnectionStatusDB } from '../services/db';
+import VenueProfileModal from './VenueProfileModal';
 import './DJVenuesView.css';
 
 interface DJVenuesViewProps {
@@ -13,6 +14,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
   const [connections, setConnections] = useState<ArtistConnection[]>(() =>
     loadConnections().filter(c => c.artistId === userId)
   );
+  const [selectedVenue, setSelectedVenue] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     const handler = (e: StorageEvent) => {
@@ -50,7 +52,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
           <h2 className="dv-section-title">Venue requests</h2>
           <div className="dv-cards">
             {pending.map(conn => (
-              <div key={conn.id} className="dv-card">
+              <div key={conn.id} className="dv-card" style={{ cursor: 'pointer' }} onClick={() => setSelectedVenue({ id: conn.venueId, name: conn.venueName })}>
                 <div className="dv-card-avatar">{conn.venueName.charAt(0)}</div>
                 <div className="dv-card-info">
                   <div className="dv-card-name">{conn.venueName}</div>
@@ -59,7 +61,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
                     {new Date(conn.requestedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
                   </div>
                 </div>
-                <div className="dv-card-actions">
+                <div className="dv-card-actions" onClick={e => e.stopPropagation()}>
                   <button className="dv-btn dv-btn--decline" onClick={() => respond(conn.id, 'declined')}>Decline</button>
                   <button className="dv-btn dv-btn--accept"  onClick={() => respond(conn.id, 'accepted')}>Accept</button>
                 </div>
@@ -74,13 +76,13 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
           <h2 className="dv-section-title">Connected venues</h2>
           <div className="dv-cards">
             {accepted.map(conn => (
-              <div key={conn.id} className="dv-card dv-card--connected">
+              <div key={conn.id} className="dv-card dv-card--connected" style={{ cursor: 'pointer' }} onClick={() => setSelectedVenue({ id: conn.venueId, name: conn.venueName })}>
                 <div className="dv-card-avatar dv-card-avatar--green">{conn.venueName.charAt(0)}</div>
                 <div className="dv-card-info">
                   <div className="dv-card-name">{conn.venueName}</div>
                   <div className="dv-card-sub">You are in their artist pool</div>
                 </div>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} onClick={e => e.stopPropagation()}>
                   {onMessage && (
                     <button className="dv-btn dv-btn--message" onClick={() => onMessage(userId, 'DJ', conn.venueName, conn.venueId)}>
                       Message
@@ -99,6 +101,14 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
           <p>No venue requests yet.</p>
           <p>Make sure your profile is complete so venues can find you on the Marketplace.</p>
         </div>
+      )}
+
+      {selectedVenue && (
+        <VenueProfileModal
+          venueId={selectedVenue.id}
+          venueName={selectedVenue.name}
+          onClose={() => setSelectedVenue(null)}
+        />
       )}
     </div>
   );
