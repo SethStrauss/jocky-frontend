@@ -26,6 +26,7 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage, artists = [] }) =>
     fetchAllDJProfiles().then(profiles => {
       const map: Record<string, string> = {};
       profiles.forEach((p: any) => { if (p.photo) map[p.id] = p.photo; });
+      console.log('[ArtistsView] djPhotos loaded:', Object.keys(map).length, 'entries', Object.entries(map).map(([id, url]) => ({ id, len: url.length })));
       setDjPhotos(map);
     });
   }, []);
@@ -101,6 +102,7 @@ const ArtistsView: React.FC<ArtistsViewProps> = ({ onMessage, artists = [] }) =>
 
             {displayList.map(conn => {
               const photo = djPhotos[conn.artistId] || conn.artistPhoto || artists.find(a => a.id === conn.artistId)?.image || '';
+              console.log('[ArtistsView] conn', conn.artistName, 'artistId:', conn.artistId, 'artistPhoto len:', conn.artistPhoto?.length, 'djPhotos hit:', !!djPhotos[conn.artistId], 'final photo len:', photo.length);
               return (
               <div key={conn.id} className={`artist-pool-card ${conn.status === 'pending' ? 'artist-pool-card--pending' : ''}`}
                 onClick={() => setProfileArtist({ id: conn.artistId, name: conn.artistName, type: conn.artistType, location: conn.artistLocation, genres: conn.artistGenres, photo })}
