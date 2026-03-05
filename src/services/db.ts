@@ -179,8 +179,6 @@ export async function fetchDJProfile(userId: string): Promise<any | null> {
 }
 
 export async function upsertDJProfile(userId: string, profile: any): Promise<void> {
-  // Only save a photo URL (from Supabase Storage) — skip base64 data URLs to avoid DB size issues
-  const photoToSave = (profile.photo && !profile.photo.startsWith('data:')) ? profile.photo : '';
   const { error } = await supabase.from('dj_profiles').upsert({
     id: userId,
     name: profile.name || '',
@@ -188,7 +186,7 @@ export async function upsertDJProfile(userId: string, profile: any): Promise<voi
     genres: profile.genres || [],
     category: profile.category || 'Club DJ',
     location: profile.location || '',
-    photo: photoToSave,
+    photo: profile.photo || '',
     photo_x: profile.photoX || 50,
     photo_y: profile.photoY || 50,
     price: profile.price || '',

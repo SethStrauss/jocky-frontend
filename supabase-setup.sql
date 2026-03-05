@@ -37,8 +37,12 @@ create table if not exists public.dj_profiles (
   price text default '', press_kit jsonb,
   updated_at timestamptz default now()
 );
+alter table public.dj_profiles add column if not exists spotify text default '';
+alter table public.dj_profiles add column if not exists youtube text default '';
+alter table public.dj_profiles add column if not exists manual_gigs jsonb default '[]';
 alter table public.dj_profiles enable row level security;
 create policy "Users manage own dj profile" on public.dj_profiles for all using (auth.uid() = id);
+create policy "Anyone can read dj profiles" on public.dj_profiles for select using (true);
 
 -- Connections (venue <-> DJ)
 create table if not exists public.connections (
