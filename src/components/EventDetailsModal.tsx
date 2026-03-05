@@ -202,21 +202,6 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
             )}
           </div>
 
-          {event.artistName && event.status !== 'open' && (() => {
-            const artistPhoto = artists.find(a => a.id === event.artistId)?.image || '';
-            return (
-              <div className="edm-artist-card">
-                <div className="edm-artist-header">
-                  <div className="edm-artist-photo" style={artistPhoto ? { backgroundImage: `url(${artistPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-                    {!artistPhoto && event.artistName.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="edm-artist-meta">
-                    <div className="edm-artist-name">{event.artistName}</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
         </div>
 
         {(event.status === 'open' || event.status === 'offered') && (
