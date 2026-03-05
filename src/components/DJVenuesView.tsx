@@ -17,9 +17,11 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, venueProfiles = [],
   );
   const [selectedVenue, setSelectedVenue] = useState<{ id: string; name: string; profile: any } | null>(null);
 
+  const getProfile = (id: string) => venueProfiles.find((p: any) => p.id === id) || null;
+
   const openVenue = (id: string, name: string) => {
-    const profile = venueProfiles.find((p: any) => p.id === id) || null;
-    setSelectedVenue({ id, name, profile });
+    const profile = getProfile(id);
+    setSelectedVenue({ id, name: profile?.companyName || name, profile });
   };
 
   useEffect(() => {
@@ -57,11 +59,17 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, venueProfiles = [],
         <section className="dv-section">
           <h2 className="dv-section-title">Venue requests</h2>
           <div className="dv-cards">
-            {pending.map(conn => (
+            {pending.map(conn => {
+              const vp = getProfile(conn.venueId);
+              const displayName = vp?.companyName || conn.venueName || 'Venue';
+              const photo = vp?.photo || '';
+              return (
               <div key={conn.id} className="dv-card" style={{ cursor: 'pointer' }} onClick={() => openVenue(conn.venueId, conn.venueName)}>
-                <div className="dv-card-avatar">{conn.venueName.charAt(0)}</div>
+                <div className="dv-card-avatar" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                  {!photo && displayName.charAt(0)}
+                </div>
                 <div className="dv-card-info">
-                  <div className="dv-card-name">{conn.venueName}</div>
+                  <div className="dv-card-name">{displayName}</div>
                   <div className="dv-card-sub">wants to add you to their artist pool</div>
                   <div className="dv-card-date">
                     {new Date(conn.requestedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}
@@ -72,7 +80,8 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, venueProfiles = [],
                   <button className="dv-btn dv-btn--accept"  onClick={() => respond(conn.id, 'accepted')}>Accept</button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -81,23 +90,30 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, venueProfiles = [],
         <section className="dv-section">
           <h2 className="dv-section-title">Connected venues</h2>
           <div className="dv-cards">
-            {accepted.map(conn => (
+            {accepted.map(conn => {
+              const vp = getProfile(conn.venueId);
+              const displayName = vp?.companyName || conn.venueName || 'Venue';
+              const photo = vp?.photo || '';
+              return (
               <div key={conn.id} className="dv-card dv-card--connected" style={{ cursor: 'pointer' }} onClick={() => openVenue(conn.venueId, conn.venueName)}>
-                <div className="dv-card-avatar dv-card-avatar--green">{conn.venueName.charAt(0)}</div>
+                <div className="dv-card-avatar dv-card-avatar--green" style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                  {!photo && displayName.charAt(0)}
+                </div>
                 <div className="dv-card-info">
-                  <div className="dv-card-name">{conn.venueName}</div>
+                  <div className="dv-card-name">{displayName}</div>
                   <div className="dv-card-sub">You are in their artist pool</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }} onClick={e => e.stopPropagation()}>
                   {onMessage && (
-                    <button className="dv-btn dv-btn--message" onClick={() => onMessage(userId, 'DJ', conn.venueName, conn.venueId)}>
+                    <button className="dv-btn dv-btn--message" onClick={() => onMessage(userId, 'DJ', displayName, conn.venueId)}>
                       Message
                     </button>
                   )}
                   <span className="dv-connected-badge">Connected</span>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
