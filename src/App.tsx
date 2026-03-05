@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Session } from '@supabase/supabase-js';
 import supabase from './supabase';
 import { Calendar, Building2, MessageCircle, List, CalendarDays, Clock, X } from 'lucide-react';
@@ -97,7 +97,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       }))
   );
 
-  const loadAndEnrichPoolArtists = async () => {
+  const loadAndEnrichPoolArtists = useCallback(async () => {
     const fromConnections = loadConnections()
       .filter(c => c.venueId === userId && (c.status === 'accepted' || c.status === 'pending'))
       .map(c => ({
@@ -114,7 +114,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       const profile = profiles.find((p: any) => p.id === artist.id);
       return profile?.photo ? { ...artist, image: profile.photo } : artist;
     }));
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadAndEnrichPoolArtists();
@@ -125,7 +125,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, [userId]);
+  }, [userId, loadAndEnrichPoolArtists]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [unreadMessages, setUnreadMessages] = useState(() => getUnreadCount('venue'));
 
