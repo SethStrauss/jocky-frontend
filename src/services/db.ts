@@ -179,6 +179,7 @@ export async function fetchDJProfile(userId: string): Promise<any | null> {
 }
 
 export async function upsertDJProfile(userId: string, profile: any): Promise<void> {
+  console.log('[upsertDJProfile] saving for', userId, 'photo bytes:', profile.photo?.length ?? 0);
   const { error } = await supabase.from('dj_profiles').upsert({
     id: userId,
     name: profile.name || '',
@@ -196,12 +197,14 @@ export async function upsertDJProfile(userId: string, profile: any): Promise<voi
     press_kit: profile.pressKit || null,
     updated_at: new Date().toISOString(),
   });
-  if (error) console.error('upsertDJProfile:', error);
+  if (error) console.error('[upsertDJProfile] ERROR:', error);
+  else console.log('[upsertDJProfile] saved OK');
 }
 
 export async function fetchAllDJProfiles(): Promise<any[]> {
   const { data, error } = await supabase.from('dj_profiles').select('*');
-  if (error) { console.error('fetchAllDJProfiles:', error); return []; }
+  if (error) { console.error('[fetchAllDJProfiles] ERROR:', error); return []; }
+  console.log('[fetchAllDJProfiles] returned', data?.length, 'rows, photos:', data?.map(p => ({ name: p.name, photoLen: p.photo?.length ?? 0 })));
   return data || [];
 }
 

@@ -132,7 +132,20 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => { setPhoto(reader.result as string); setPhotoX(50); setPhotoY(50); };
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const max = 800;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setPhoto(canvas.toDataURL('image/jpeg', 0.8));
+        setPhotoX(50); setPhotoY(50);
+      };
+      img.src = ev.target?.result as string;
+    };
     reader.readAsDataURL(file);
   };
 
