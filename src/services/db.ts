@@ -135,6 +135,12 @@ export async function fetchVenueProfile(userId: string): Promise<any | null> {
   return data;
 }
 
+export async function fetchAllVenueProfiles(): Promise<any[]> {
+  const { data, error } = await supabase.from('venue_profiles').select('*');
+  if (error) { console.error('[fetchAllVenueProfiles] ERROR:', error); return []; }
+  return data || [];
+}
+
 export async function upsertVenueProfile(userId: string, profile: any): Promise<void> {
   const { error } = await supabase.from('venue_profiles').upsert({
     id: userId,

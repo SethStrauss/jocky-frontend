@@ -25,7 +25,7 @@ import { loadVenueName } from './utils/venueProfile';
 import { setCurrentSession } from './currentUser';
 import {
   loadUserDataToLocalStorage, clearUserLocalStorage,
-  upsertEvents, deleteEventDB, fetchAllDJProfiles, updateEventStatusDB,
+  upsertEvents, deleteEventDB, fetchAllDJProfiles, updateEventStatusDB, fetchAllVenueProfiles, venueProfileFromDB,
 } from './services/db';
 import './App.css';
 
@@ -540,6 +540,13 @@ function App() {
   const [upcoming, setUpcoming] = useState<Request[]>([]);
   const [djUnread, setDjUnread] = useState(0);
   const [pendingVenueRequests, setPendingVenueRequests] = useState(0);
+  const [venueProfiles, setVenueProfiles] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchAllVenueProfiles().then(profiles => {
+      setVenueProfiles(profiles.map(venueProfileFromDB).map((p: any, i: number) => ({ ...p, id: profiles[i].id })));
+    });
+  }, []);
 
   useEffect(() => {
     const update = () => setDjUnread(getUnreadCount('dj'));
@@ -874,6 +881,7 @@ function App() {
       {!showProfile && activeTab === 'venues' && (
         <DJVenuesView
           userId={djUserId}
+          venueProfiles={venueProfiles}
           onMessage={(artistId, artistName, venueName, venueId) => {
             ensureChat(artistId, artistName, venueName, venueId);
             setShowProfile(false);

@@ -1,25 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import { fetchVenueProfile, venueProfileFromDB } from '../services/db';
 import './VenueProfileModal.css';
 
 interface VenueProfileModalProps {
-  venueId: string;
+  profile: any;
   venueName: string;
   onClose: () => void;
 }
 
-const VenueProfileModal: React.FC<VenueProfileModalProps> = ({ venueId, venueName, onClose }) => {
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchVenueProfile(venueId).then(data => {
-      setProfile(data ? venueProfileFromDB(data) : null);
-      setLoading(false);
-    });
-  }, [venueId]);
-
+const VenueProfileModal: React.FC<VenueProfileModalProps> = ({ profile, venueName, onClose }) => {
   const modal = (
     <div className="vpm-overlay" onClick={onClose}>
       <div className="vpm-modal" onClick={e => e.stopPropagation()}>
@@ -34,9 +23,7 @@ const VenueProfileModal: React.FC<VenueProfileModalProps> = ({ venueId, venueNam
           {profile?.address && <div className="vpm-hero-address">{profile.address}</div>}
         </div>
 
-        {loading && <div className="vpm-loading">Loading…</div>}
-
-        {!loading && profile && (
+        {profile ? (
           <div className="vpm-body">
             {profile.openingHours && (
               <div className="vpm-row">
@@ -85,9 +72,7 @@ const VenueProfileModal: React.FC<VenueProfileModalProps> = ({ venueId, venueNam
               </div>
             )}
           </div>
-        )}
-
-        {!loading && !profile && (
+        ) : (
           <div className="vpm-empty">No profile information available yet.</div>
         )}
       </div>

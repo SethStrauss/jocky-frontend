@@ -6,15 +6,21 @@ import './DJVenuesView.css';
 
 interface DJVenuesViewProps {
   userId: string;
+  venueProfiles?: any[];
   onMessage?: (artistId: string, artistName: string, venueName: string, venueId?: string) => void;
   onConnectionChange?: () => void;
 }
 
-const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnectionChange }) => {
+const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, venueProfiles = [], onMessage, onConnectionChange }) => {
   const [connections, setConnections] = useState<ArtistConnection[]>(() =>
     loadConnections().filter(c => c.artistId === userId)
   );
-  const [selectedVenue, setSelectedVenue] = useState<{ id: string; name: string } | null>(null);
+  const [selectedVenue, setSelectedVenue] = useState<{ id: string; name: string; profile: any } | null>(null);
+
+  const openVenue = (id: string, name: string) => {
+    const profile = venueProfiles.find((p: any) => p.id === id) || null;
+    setSelectedVenue({ id, name, profile });
+  };
 
   useEffect(() => {
     const handler = (e: StorageEvent) => {
@@ -52,7 +58,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
           <h2 className="dv-section-title">Venue requests</h2>
           <div className="dv-cards">
             {pending.map(conn => (
-              <div key={conn.id} className="dv-card" style={{ cursor: 'pointer' }} onClick={() => setSelectedVenue({ id: conn.venueId, name: conn.venueName })}>
+              <div key={conn.id} className="dv-card" style={{ cursor: 'pointer' }} onClick={() => openVenue(conn.venueId, conn.venueName)}>
                 <div className="dv-card-avatar">{conn.venueName.charAt(0)}</div>
                 <div className="dv-card-info">
                   <div className="dv-card-name">{conn.venueName}</div>
@@ -76,7 +82,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
           <h2 className="dv-section-title">Connected venues</h2>
           <div className="dv-cards">
             {accepted.map(conn => (
-              <div key={conn.id} className="dv-card dv-card--connected" style={{ cursor: 'pointer' }} onClick={() => setSelectedVenue({ id: conn.venueId, name: conn.venueName })}>
+              <div key={conn.id} className="dv-card dv-card--connected" style={{ cursor: 'pointer' }} onClick={() => openVenue(conn.venueId, conn.venueName)}>
                 <div className="dv-card-avatar dv-card-avatar--green">{conn.venueName.charAt(0)}</div>
                 <div className="dv-card-info">
                   <div className="dv-card-name">{conn.venueName}</div>
@@ -105,7 +111,7 @@ const DJVenuesView: React.FC<DJVenuesViewProps> = ({ userId, onMessage, onConnec
 
       {selectedVenue && (
         <VenueProfileModal
-          venueId={selectedVenue.id}
+          profile={selectedVenue.profile}
           venueName={selectedVenue.name}
           onClose={() => setSelectedVenue(null)}
         />
