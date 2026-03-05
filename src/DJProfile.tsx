@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { currentSession } from './currentUser';
-import { upsertDJProfile } from './services/db';
+import { upsertDJProfile, uploadDJPhoto } from './services/db';
 import './DJProfile.css';
 
 interface Gig {
@@ -170,8 +170,13 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  const saveProfile = () => {
-    const profileData = { name, bio, genres, category, location, spotify, youtube, price, photo, photoX, photoY, manualGigs, pressKit };
+  const saveProfile = async () => {
+    let photoToSave = photo;
+    if (photo && photo.startsWith('data:') && currentSession?.userId) {
+      photoToSave = await uploadDJPhoto(currentSession.userId, photo);
+      setPhoto(photoToSave);
+    }
+    const profileData = { name, bio, genres, category, location, spotify, youtube, price, photo: photoToSave, photoX, photoY, manualGigs, pressKit };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
     if (currentSession?.userId) upsertDJProfile(currentSession.userId, profileData);
   };

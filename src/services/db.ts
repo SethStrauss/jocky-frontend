@@ -1,6 +1,26 @@
 import supabase from '../supabase';
 import { Event } from '../types';
 
+// ── Photo Upload ───────────────────────────────────────────────────────────────
+
+export async function uploadDJPhoto(userId: string, base64DataUrl: string): Promise<string> {
+  try {
+    const res = await fetch(base64DataUrl);
+    const blob = await res.blob();
+    const ext = blob.type.includes('png') ? 'png' : 'jpg';
+    const path = `${userId}/profile.${ext}`;
+    const { error } = await supabase.storage
+      .from('dj-photos')
+      .upload(path, blob, { upsert: true, contentType: blob.type });
+    if (error) { console.error('uploadDJPhoto:', error); return base64DataUrl; }
+    const { data } = supabase.storage.from('dj-photos').getPublicUrl(path);
+    return data.publicUrl;
+  } catch (err) {
+    console.error('uploadDJPhoto error:', err);
+    return base64DataUrl;
+  }
+}
+
 // ── Events ────────────────────────────────────────────────────────────────────
 
 function dbToEvent(row: any): Event {

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { currentSession } from '../currentUser';
-import { upsertDJProfile } from '../services/db';
+import { upsertDJProfile, uploadDJPhoto } from '../services/db';
 import supabase from '../supabase';
 import './DJOnboarding.css';
 
@@ -42,13 +42,18 @@ const DJOnboarding: React.FC<DJOnboardingProps> = ({ onComplete }) => {
     if (step < 5) { setStep(s => s + 1); return; }
     // Save and complete
     const displayName = artistName.trim() || fullName.trim();
+    // Upload photo to Supabase Storage if it's a base64 data URL
+    let photoUrl = photo;
+    if (photo && photo.startsWith('data:') && currentSession?.userId) {
+      photoUrl = await uploadDJPhoto(currentSession.userId, photo);
+    }
     const profileData = {
       name: displayName,
       bio,
       genres: [],
       category: types[0] || 'DJ',
       location: city,
-      photo,
+      photo: photoUrl,
       photoX: 50,
       photoY: 50,
       price: '',

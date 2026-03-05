@@ -206,12 +206,18 @@ const WeekView: React.FC<WeekViewProps> = ({
                             if (onEventClick) onEventClick(event, day);
                           }}
                         >
-                          {event.artistName && (
-                            <div className="event-tooltip">
-                              <div className="event-tooltip-avatar">🎧</div>
-                              <div className="event-tooltip-name">{event.artistName}</div>
-                            </div>
-                          )}
+                          {event.artistName && (() => {
+                            const tooltipPhoto = artists?.find(a => a.id === event.artistId)?.image || '';
+                            return (
+                              <div className="event-tooltip">
+                                <div className="event-tooltip-avatar"
+                                  style={tooltipPhoto ? { backgroundImage: `url(${tooltipPhoto})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                                  {!tooltipPhoto && event.artistName.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="event-tooltip-name">{event.artistName}</div>
+                              </div>
+                            );
+                          })()}
                           <div className="week-event-top-row">
                             <div className="week-event-name">{event.name}</div>
                             {event.artistName && (() => {
