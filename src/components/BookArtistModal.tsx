@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Artist, Event } from '../types';
-import { fetchAllDJProfiles } from '../services/db';
 import './BookArtistModal.css';
 
 interface BookArtistModalProps {
@@ -17,11 +16,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [poolSearchQuery, setPoolSearchQuery] = useState('');
-  const [showMarketplace, setShowMarketplace] = useState(false);
-  const [marketplaceSearchQuery, setMarketplaceSearchQuery] = useState('');
-  const [artistTypeFilter, setArtistTypeFilter] = useState('all');
-  const [musicTypeFilter, setMusicTypeFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
+
   const toggleEvent = (eventId: string) => {
     setSelectedEvents(prev =>
       prev.includes(eventId) ? prev.filter(id => id !== eventId) : [...prev, eventId]
@@ -42,31 +37,6 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
     artist.name.toLowerCase().includes(poolSearchQuery.toLowerCase()) ||
     artist.genres.some(g => g.toLowerCase().includes(poolSearchQuery.toLowerCase()))
   );
-
-  const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<Artist[]>([]);
-  useEffect(() => {
-    fetchAllDJProfiles().then(profiles => {
-      setAllMarketplaceArtists(profiles.filter(p => p.name).map(p => ({
-        id: p.id,
-        name: p.name,
-        type: p.category || 'Club DJ',
-        location: p.location || '',
-        genres: p.genres || [],
-        about: p.bio || '',
-        image: p.photo || '',
-      })));
-    });
-  }, []);
-
-  const marketplaceArtists = allMarketplaceArtists.filter(artist => {
-    const matchesSearch = artist.name.toLowerCase().includes(marketplaceSearchQuery.toLowerCase()) ||
-                         artist.genres.some(g => g.toLowerCase().includes(marketplaceSearchQuery.toLowerCase()));
-    const matchesType = artistTypeFilter === 'all' || artist.type.toLowerCase() === artistTypeFilter.toLowerCase();
-    const matchesGenre = musicTypeFilter === 'all' ||
-                        artist.genres.some(g => g.toLowerCase().includes(musicTypeFilter.toLowerCase()));
-    const matchesLocation = locationFilter === 'all' || artist.location === locationFilter;
-    return matchesSearch && matchesType && matchesGenre && matchesLocation;
-  });
 
   const renderArtistCard = (artist: Artist) => {
     return (
@@ -200,7 +170,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                 <button className={`mode-tab ${mode === 'booking' ? 'active' : ''}`} onClick={() => setMode('booking')}>Booking request</button>
               </div>
 
-              {poolArtists.length > 0 && (
+              {poolArtists.length > 0 ? (
                 <div className="artist-section">
                   <div className="section-header">
                     <h3>Artist Pool</h3>
@@ -214,8 +184,11 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                   </div>
                   <div className="artists-list">{poolArtists.map(renderArtistCard)}</div>
                 </div>
+              ) : (
+                <div className="edm-check-empty" style={{ padding: '32px 0', textAlign: 'center' }}>
+                  No artists in your pool yet. Add artists from the Marketplace first.
+                </div>
               )}
-
             </div>
           )}
         </div>
@@ -230,92 +203,12 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
               Next step
             </button>
           ) : (
-            <>
-              <button className="btn-find-marketplace" onClick={() => setShowMarketplace(true)}>
-                Find on Marketplace
-              </button>
-              <button className="btn-create" onClick={handleSubmit} disabled={selectedArtists.length === 0}>
-                {mode === 'interest' ? 'Send interest check' : 'Send booking request'}
-              </button>
-            </>
+            <button className="btn-create" onClick={handleSubmit} disabled={selectedArtists.length === 0}>
+              {mode === 'interest' ? 'Send interest check' : 'Send booking request'}
+            </button>
           )}
         </div>
       </div>
-
-      {showMarketplace && ReactDOM.createPortal(
-        <div className="bam-mp-overlay" onClick={() => setShowMarketplace(false)}>
-          <div className="bam-mp-modal" onClick={(e) => e.stopPropagation()}>
-
-            {/* Header */}
-            <div className="bam-mp-header">
-              <div>
-                <h2 className="bam-mp-title">Marketplace</h2>
-                <p className="bam-mp-count">{marketplaceArtists.length} artist{marketplaceArtists.length !== 1 ? 's' : ''}</p>
-              </div>
-              <button className="bam-mp-close" onClick={() => setShowMarketplace(false)}>×</button>
-            </div>
-
-            {/* Filters */}
-            <div className="bam-mp-filters">
-              <div className="search-box" style={{ minWidth: 300 }}>
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
-                <input type="text" placeholder="Search marketplace..." value={marketplaceSearchQuery} onChange={(e) => setMarketplaceSearchQuery(e.target.value)} />
-              </div>
-              <select value={artistTypeFilter} onChange={(e) => setArtistTypeFilter(e.target.value)}>
-                <option value="all">Type of artist</option>
-                <option value="dj">DJ</option>
-                <option value="producer">Producer</option>
-              </select>
-              <select value={musicTypeFilter} onChange={(e) => setMusicTypeFilter(e.target.value)}>
-                <option value="all">Type of music</option>
-                <option value="house">House</option>
-                <option value="techno">Techno</option>
-              </select>
-              <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
-                <option value="all">Location</option>
-                <option value="Stockholm">Stockholm</option>
-              </select>
-            </div>
-
-            {/* Cards — same grid as marketplace page */}
-            <div className="bam-mp-grid">
-              {marketplaceArtists.map(artist => {
-                const isSelected = selectedArtists.includes(artist.id);
-                const isInPool = artists.some(a => a.id === artist.id);
-                return (
-                  <div
-                    key={artist.id}
-                    className={`marketplace-card bam-mp-card ${isSelected ? 'bam-mp-card-selected' : ''}`}
-                    onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
-                  >
-                    <div className="marketplace-card-image">
-                      <div className="placeholder-image">
-                        <span>{artist.name.charAt(0)}</span>
-                      </div>
-                    </div>
-                    <div className="marketplace-card-info">
-                      <p className="artist-card-name">{artist.name}</p>
-                      <p className="artist-card-type">{artist.type}</p>
-                      <p className="artist-card-location">{artist.location}</p>
-                      <p className="artist-card-genres">{artist.genres.join(', ')}</p>
-                      <button
-                        className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
-                        onClick={(e) => { e.stopPropagation(); if (!isInPool) toggleArtist(artist.id); }}
-                      >
-                        {isInPool ? 'In your pool' : isSelected ? '✓ Selected' : 'Select'}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-          </div>
-        </div>,
-        document.body
-      )}
     </div>
   );
 };

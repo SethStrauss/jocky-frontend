@@ -8,7 +8,7 @@ export async function uploadVenuePhoto(userId: string, base64DataUrl: string): P
     const res = await fetch(base64DataUrl);
     const blob = await res.blob();
     const ext = blob.type.includes('png') ? 'png' : 'jpg';
-    const path = `venues/${userId}/profile.${ext}`;
+    const path = `${userId}/venue-profile.${ext}`;
     const { error } = await supabase.storage
       .from('dj-photos')
       .upload(path, blob, { upsert: true, contentType: blob.type });
