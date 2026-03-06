@@ -231,8 +231,7 @@
 }
 
 .bam-mp-card-selected {
-  outline: 2px solid #3B82F6;
-  border-radius: 8px;
+  border-color: #3B82F6 !important;
 }
 
 .bam-mp-select-btn {
