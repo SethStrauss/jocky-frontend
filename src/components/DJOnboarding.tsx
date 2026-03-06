@@ -32,12 +32,12 @@ const DJOnboarding: React.FC<DJOnboardingProps> = ({ onComplete }) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const max = 800;
+        const max = 1400;
         const scale = Math.min(1, max / Math.max(img.width, img.height));
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setPhoto(canvas.toDataURL('image/jpeg', 0.8));
+        setPhoto(canvas.toDataURL('image/jpeg', 0.92));
       };
       img.src = ev.target?.result as string;
     };
@@ -67,7 +67,7 @@ const DJOnboarding: React.FC<DJOnboardingProps> = ({ onComplete }) => {
       location: city,
       photo: photoUrl,
       photoX: 50,
-      photoY: 50,
+      photoY: 0,
       price: '',
       spotify: '',
       youtube: '',
