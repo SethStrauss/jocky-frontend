@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { currentSession } from './currentUser';
-import { upsertDJProfile, uploadDJPhoto } from './services/db';
+import { upsertDJProfile, uploadDJPhoto, uploadDJPhotoHires } from './services/db';
 import './DJProfile.css';
 
 interface Gig {
@@ -42,6 +42,7 @@ const defaults = {
   youtube:    '',
   price:      '',
   photo:      '',
+  photoHires: '',
   photoX:     50,
   photoY:     50,
   manualGigs: [] as Gig[],
@@ -94,9 +95,10 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
   const [price] = useState(initial.price);
   const [newGenre, setNewGenre] = useState('');
 
-  const [photo,    setPhoto]    = useState(initial.photo || '');
-  const [photoX,   setPhotoX]   = useState<number>(initial.photoX ?? 50);
-  const [photoY,   setPhotoY]   = useState<number>(initial.photoY ?? 50);
+  const [photo,      setPhoto]      = useState(initial.photo || '');
+  const [photoHires, setPhotoHires] = useState(initial.photoHires || '');
+  const [photoX,     setPhotoX]     = useState<number>(initial.photoX ?? 50);
+  const [photoY,     setPhotoY]     = useState<number>(initial.photoY ?? 50);
   const [pressKit, setPressKit] = useState<{ name: string; data: string } | null>(initial.pressKit || null);
   const fileInputRef    = useRef<HTMLInputElement>(null);
   const pressKitInputRef = useRef<HTMLInputElement>(null);
@@ -119,6 +121,7 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
       setSpotify(p.spotify);
       setYoutube(p.youtube);
       setPhoto(p.photo || '');
+      setPhotoHires(p.photoHires || '');
       setPhotoX(p.photoX ?? 50);
       setPhotoY(p.photoY ?? 50);
       setPressKit(p.pressKit || null);
@@ -135,13 +138,16 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
     reader.onload = ev => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const max = 800;
-        const scale = Math.min(1, max / Math.max(img.width, img.height));
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        setPhoto(canvas.toDataURL('image/jpeg', 0.8));
+        const resize = (max: number, quality: number) => {
+          const canvas = document.createElement('canvas');
+          const scale = Math.min(1, max / Math.max(img.width, img.height));
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+          return canvas.toDataURL('image/jpeg', quality);
+        };
+        setPhoto(resize(400, 0.8));       // thumb for pool cards
+        setPhotoHires(resize(1200, 0.92)); // hires for profile display
         setPhotoX(50); setPhotoY(50);
       };
       img.src = ev.target?.result as string;
@@ -185,11 +191,18 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
 
   const saveProfile = async () => {
     let photoToSave = photo;
-    if (photo && photo.startsWith('data:') && currentSession?.userId) {
-      photoToSave = await uploadDJPhoto(currentSession.userId, photo);
-      setPhoto(photoToSave);
+    let photoHiresToSave = photoHires;
+    if (currentSession?.userId) {
+      if (photo && photo.startsWith('data:')) {
+        photoToSave = await uploadDJPhoto(currentSession.userId, photo);
+        setPhoto(photoToSave);
+      }
+      if (photoHires && photoHires.startsWith('data:')) {
+        photoHiresToSave = await uploadDJPhotoHires(currentSession.userId, photoHires);
+        setPhotoHires(photoHiresToSave);
+      }
     }
-    const profileData = { name, bio, genres, category, location, spotify, youtube, price, photo: photoToSave, photoX, photoY, manualGigs, pressKit };
+    const profileData = { name, bio, genres, category, location, spotify, youtube, price, photo: photoToSave, photoHires: photoHiresToSave, photoX, photoY, manualGigs, pressKit };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
     if (currentSession?.userId) upsertDJProfile(currentSession.userId, profileData);
   };
@@ -218,7 +231,7 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
       <div className="pp-hero" ref={heroRef}>
         <div
           className="pp-hero-art"
-          style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: `${photoX}% ${photoY}%` } : undefined}
+          style={(photoHires || photo) ? { backgroundImage: `url(${photoHires || photo})`, backgroundSize: 'cover', backgroundPosition: `${photoX}% ${photoY}%` } : undefined}
         />
         <div className="pp-hero-overlay" />
         <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />

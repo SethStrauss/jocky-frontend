@@ -39,6 +39,24 @@ export async function uploadDJPhoto(userId: string, base64DataUrl: string): Prom
   }
 }
 
+export async function uploadDJPhotoHires(userId: string, base64DataUrl: string): Promise<string> {
+  try {
+    const res = await fetch(base64DataUrl);
+    const blob = await res.blob();
+    const ext = blob.type.includes('png') ? 'png' : 'jpg';
+    const path = `${userId}/profile-hires.${ext}`;
+    const { error } = await supabase.storage
+      .from('dj-photos')
+      .upload(path, blob, { upsert: true, contentType: blob.type });
+    if (error) { console.error('uploadDJPhotoHires:', error); return base64DataUrl; }
+    const { data } = supabase.storage.from('dj-photos').getPublicUrl(path);
+    return data.publicUrl;
+  } catch (err) {
+    console.error('uploadDJPhotoHires error:', err);
+    return base64DataUrl;
+  }
+}
+
 // ── Events ────────────────────────────────────────────────────────────────────
 
 function dbToEvent(row: any): Event {
@@ -187,6 +205,7 @@ export function djProfileFromDB(row: any): any {
     category: row.category ?? 'Club DJ',
     location: row.location ?? '',
     photo: row.photo ?? '',
+    photoHires: row.photo_hires ?? '',
     photoX: row.photo_x ?? 50,
     photoY: row.photo_y ?? 50,
     price: row.price ?? '',
@@ -212,6 +231,7 @@ export async function upsertDJProfile(userId: string, profile: any): Promise<voi
     category: profile.category || 'Club DJ',
     location: profile.location || '',
     photo: profile.photo || '',
+    photo_hires: profile.photoHires || '',
     photo_x: profile.photoX || 50,
     photo_y: profile.photoY || 50,
     price: profile.price || '',
