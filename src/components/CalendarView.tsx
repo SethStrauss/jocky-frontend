@@ -301,7 +301,13 @@ function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit, artists: poo
                   }
                 </div>
                 <span className="ep-artist-name">{a.artistName}</span>
-                <span className={`ep-dot ${ev.status === 'offered' ? 'ep-dot-yellow' : 'ep-dot-blue'}`} />
+                <span className={`ep-dot ${
+                  ev.status === 'confirmed' ? 'ep-dot-green'
+                  : (a as any).djResponse === 'interested' ? 'ep-dot-blue'
+                  : (a as any).djResponse === 'declined' ? 'ep-dot-red'
+                  : ev.status === 'offered' ? 'ep-dot-blue'
+                  : 'ep-dot-grey'
+                }`} />
               </div>
               );
             })}
