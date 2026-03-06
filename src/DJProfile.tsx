@@ -138,16 +138,14 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
     reader.onload = ev => {
       const img = new Image();
       img.onload = () => {
-        const resize = (max: number, quality: number) => {
-          const canvas = document.createElement('canvas');
-          const scale = Math.min(1, max / Math.max(img.width, img.height));
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
-          return canvas.toDataURL('image/jpeg', quality);
-        };
-        setPhoto(resize(400, 0.8));       // thumb for pool cards
-        setPhotoHires(resize(1200, 0.92)); // hires for profile display
+        const canvas = document.createElement('canvas');
+        const max = 1400;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setPhoto(canvas.toDataURL('image/jpeg', 0.92));
+        setPhotoHires('');
         setPhotoX(50); setPhotoY(50);
       };
       img.src = ev.target?.result as string;
@@ -231,7 +229,7 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
       <div className="pp-hero" ref={heroRef}>
         <div
           className="pp-hero-art"
-          style={(photoHires || photo) ? { backgroundImage: `url(${photoHires || photo})`, backgroundSize: 'cover', backgroundPosition: `${photoX}% ${photoY}%` } : undefined}
+          style={photo ? { backgroundImage: `url(${photo})`, backgroundSize: 'cover', backgroundPosition: `${photoX}% ${photoY}%` } : undefined}
         />
         <div className="pp-hero-overlay" />
         <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />
