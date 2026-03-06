@@ -200,6 +200,22 @@
 .bam-mp-filters select:focus { outline: none; border-color: #9CA3AF; }
 
 /* Cards grid — matches marketplace page exactly */
+.bam-mp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 16px 40px;
+  border-top: 1px solid #E5E7EB;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.bam-mp-selected-count {
+  font-size: 13px;
+  color: #6B7280;
+}
+
 .bam-mp-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
