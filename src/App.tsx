@@ -554,7 +554,6 @@ function App() {
   const [requests, setRequests] = useState<Request[]>([]);
   const [upcoming, setUpcoming] = useState<Request[]>([]);
   const [djUnread, setDjUnread] = useState(0);
-  const [pendingVenueRequests, setPendingVenueRequests] = useState(0);
   const [venueProfiles, setVenueProfiles] = useState<any[]>([]);
 
   useEffect(() => {
@@ -570,18 +569,6 @@ function App() {
     return () => window.removeEventListener('storage', update);
   }, []);
 
-  useEffect(() => {
-    const update = () => {
-      if (session) {
-        setPendingVenueRequests(
-          loadConnections().filter(c => c.artistId === session.user.id && c.status === 'pending').length
-        );
-      }
-    };
-    update();
-    window.addEventListener('storage', update);
-    return () => window.removeEventListener('storage', update);
-  }, [session]);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -622,9 +609,6 @@ function App() {
             setRequests(loadRequestsFromStorage(s.user.id));
             setUpcoming(loadUpcomingFromStorage(s.user.id));
             setDjUnread(getUnreadCount('dj'));
-            setPendingVenueRequests(
-              loadConnections().filter(c => c.artistId === s.user.id && c.status === 'pending').length
-            );
           }
         });
       }
@@ -638,9 +622,6 @@ function App() {
             setRequests(loadRequestsFromStorage(session.user.id));
             setUpcoming(loadUpcomingFromStorage(session.user.id));
             setDjUnread(getUnreadCount('dj'));
-            setPendingVenueRequests(
-              loadConnections().filter(c => c.artistId === session.user.id && c.status === 'pending').length
-            );
           }
         });
       } else {
@@ -660,9 +641,6 @@ function App() {
       setRequests(loadRequestsFromStorage(uid));
       setUpcoming(loadUpcomingFromStorage(uid));
       setDjUnread(getUnreadCount('dj'));
-      setPendingVenueRequests(
-        loadConnections().filter(c => c.artistId === uid && c.status === 'pending').length
-      );
     }
   }, [session, userType]);
 
