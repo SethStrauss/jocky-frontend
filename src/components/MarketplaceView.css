@@ -97,8 +97,7 @@
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-  border: 2px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .marketplace-card:hover {
@@ -108,7 +107,7 @@
 
 .marketplace-card-image {
   width: 100%;
-  aspect-ratio: 3/4;
+  aspect-ratio: 4/3;
   background: #F3F4F6;
   overflow: hidden;
 }
@@ -117,7 +116,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top;
 }
 
 .placeholder-image {
