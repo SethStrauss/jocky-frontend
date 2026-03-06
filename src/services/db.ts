@@ -32,7 +32,7 @@ export async function uploadDJPhoto(userId: string, base64DataUrl: string): Prom
       .upload(path, blob, { upsert: true, contentType: blob.type });
     if (error) { console.error('uploadDJPhoto:', error); return base64DataUrl; }
     const { data } = supabase.storage.from('dj-photos').getPublicUrl(path);
-    return data.publicUrl;
+    return `${data.publicUrl}?v=${Date.now()}`;
   } catch (err) {
     console.error('uploadDJPhoto error:', err);
     return base64DataUrl;

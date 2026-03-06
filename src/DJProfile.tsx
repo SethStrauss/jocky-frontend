@@ -44,7 +44,7 @@ const defaults = {
   photo:      '',
   photoHires: '',
   photoX:     50,
-  photoY:     50,
+  photoY:     0,
   manualGigs: [] as Gig[],
   pressKit:   null as { name: string; data: string } | null,
 };
@@ -146,7 +146,7 @@ const DJProfile: React.FC<DJProfileProps> = ({ onClose }) => {
         canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
         setPhoto(canvas.toDataURL('image/jpeg', 0.92));
         setPhotoHires('');
-        setPhotoX(50); setPhotoY(50);
+        setPhotoX(50); setPhotoY(0);
       };
       img.src = ev.target?.result as string;
     };
