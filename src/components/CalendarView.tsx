@@ -255,7 +255,11 @@ function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit, artists: poo
   onMouseEnter: () => void; onMouseLeave: () => void; onEdit: () => void;
   artists?: Artist[];
 }) {
-  const artists = ev.status === 'offered' ? (ev.bookingRequests || []) : (ev.interestChecks || []);
+  const artists = ev.status === 'confirmed'
+    ? (ev.artistId ? [{ artistId: ev.artistId, artistName: ev.artistName || '' }] : [])
+    : ev.status === 'offered'
+    ? (ev.bookingRequests || [])
+    : (ev.interestChecks || []);
   const d = new Date(ev.date);
   const dateStr = `${d.getDate()}. ${MONTHS[d.getMonth()]}`;
 
