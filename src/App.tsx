@@ -751,14 +751,7 @@ function App() {
             {' '}Events
           </button>
           <button className={`dj-nav-tab ${!showProfile && activeTab === 'venues' ? 'active' : ''}`} onClick={() => { setShowProfile(false); setActiveTab('venues'); }}>
-            <span style={{ position: 'relative', display: 'inline-flex' }}>
-              <Building2 size={16} />
-              {pendingVenueRequests > 0 && (
-                <span style={{ position: 'absolute', top: -4, right: -6, background: '#ef4444', color: 'white', fontSize: 9, fontWeight: 700, minWidth: 13, height: 13, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 2px', lineHeight: 1 }}>
-                  {pendingVenueRequests > 99 ? '99+' : pendingVenueRequests}
-                </span>
-              )}
-            </span>
+            <Building2 size={16} />
             {' '}Venues
           </button>
           <button className={`dj-nav-tab ${!showProfile && activeTab === 'messages' ? 'active' : ''}`} onClick={() => { setShowProfile(false); setActiveTab('messages'); markAllRead('dj'); setDjUnread(0); }}>
@@ -902,9 +895,6 @@ function App() {
             setShowProfile(false);
             setActiveTab('messages');
           }}
-          onConnectionChange={() => setPendingVenueRequests(
-            loadConnections().filter(c => c.artistId === djUserId && c.status === 'pending').length
-          )}
         />
       )}
       {!showProfile && activeTab === 'messages' && <MessagesView perspective="dj" userId={djUserId} />}

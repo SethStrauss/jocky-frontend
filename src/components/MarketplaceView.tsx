@@ -112,7 +112,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
       artistPhoto: artist.photo || '',
       venueId,
       venueName,
-      status: 'pending',
+      status: 'accepted',
       requestedAt: new Date().toISOString(),
     };
     const updated = [...connections, newConn];
@@ -192,17 +192,11 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
                     className="btn-add-to-pool"
                     onClick={() => handleAdd(artist)}
                   >
-                    {added === artist.id ? 'Request sent!' : '+ Add to my artists'}
+                    {added === artist.id ? 'Added!' : '+ Add to my artists'}
                   </button>
-                )}
-                {status === 'pending' && (
-                  <span className="conn-status conn-status--pending">Pending response</span>
                 )}
                 {status === 'accepted' && (
                   <span className="conn-status conn-status--accepted">In your pool</span>
-                )}
-                {status === 'declined' && (
-                  <span className="conn-status conn-status--declined">Declined</span>
                 )}
               </div>
             </div>
