@@ -288,9 +288,10 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                     onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
                   >
                     <div className="marketplace-card-image">
-                      <div className="placeholder-image">
-                        <span>{artist.name.charAt(0)}</span>
-                      </div>
+                      {artist.image
+                        ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
+                      }
                     </div>
                     <div className="marketplace-card-info">
                       <p className="artist-card-name">{artist.name}</p>
