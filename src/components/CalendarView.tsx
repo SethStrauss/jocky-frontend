@@ -305,7 +305,7 @@ function EventPopup({ ev, x, y, onMouseEnter, onMouseLeave, onEdit, artists: poo
                   ev.status === 'confirmed' ? 'ep-dot-green'
                   : (a as any).djResponse === 'interested' ? 'ep-dot-blue'
                   : (a as any).djResponse === 'declined' ? 'ep-dot-red'
-                  : ev.status === 'offered' ? 'ep-dot-blue'
+                  : ev.status === 'offered' ? 'ep-dot-yellow'
                   : 'ep-dot-grey'
                 }`} />
               </div>
