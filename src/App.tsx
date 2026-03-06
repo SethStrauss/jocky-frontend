@@ -217,7 +217,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         <EventDetailsModal event={selectedEvent} clickedDate={selectedEventDate || undefined} onClose={() => { setSelectedEvent(null); setSelectedEventDate(null); }}
           onUpdate={(updatedEvent?: Event) => { if (updatedEvent) { saveEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e)); setSelectedEvent(updatedEvent); } }}
           onDelete={() => { deleteEventDB(selectedEvent.id); saveEvents(events.filter(e => e.id !== selectedEvent.id)); setSelectedEvent(null); setSelectedEventDate(null); }}
-          onMessageArtist={() => { setSelectedEvent(null); setSelectedEventDate(null); setActiveTab('requests'); }}
+          onMessageArtist={(artistId, artistName) => { ensureChat(artistId, artistName, venueName, userId); setSelectedEvent(null); setSelectedEventDate(null); setActiveTab('messages'); }}
           artists={poolArtists}
           djProfiles={allDJProfilesCache}
           onArtistClick={(artistId) => {
