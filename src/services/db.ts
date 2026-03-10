@@ -1,5 +1,6 @@
 import supabase from '../supabase';
 import { Event } from '../types';
+import { showToast } from '../components/Toast';
 
 // ── Photo Upload ───────────────────────────────────────────────────────────────
 
@@ -59,7 +60,7 @@ export async function uploadDJPhotoHires(userId: string, base64DataUrl: string):
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
-function dbToEvent(row: any): Event {
+export function dbToEvent(row: any): Event {
   return {
     id: row.id,
     name: row.name || '',
@@ -120,17 +121,17 @@ export async function fetchEvents(venueId: string): Promise<Event[]> {
 export async function upsertEvents(events: Event[], venueId: string): Promise<void> {
   if (events.length === 0) return;
   const { error } = await supabase.from('events').upsert(events.map(e => eventToDB(e, venueId)));
-  if (error) console.error('upsertEvents:', error);
+  if (error) { console.error('upsertEvents:', error); showToast('Failed to save event. Check your connection.'); }
 }
 
 export async function deleteEventDB(eventId: string): Promise<void> {
   const { error } = await supabase.from('events').delete().eq('id', eventId);
-  if (error) console.error('deleteEventDB:', error);
+  if (error) { console.error('deleteEventDB:', error); showToast('Failed to delete event.'); }
 }
 
 export async function updateEventStatusDB(eventId: string, fields: Record<string, any>): Promise<void> {
   const { error } = await supabase.from('events').update(fields).eq('id', eventId);
-  if (error) console.error('updateEventStatusDB:', error);
+  if (error) { console.error('updateEventStatusDB:', error); showToast('Failed to update event.'); }
 }
 
 export async function fetchDJRelatedEvents(djId: string): Promise<Event[]> {
@@ -192,7 +193,7 @@ export async function upsertVenueProfile(userId: string, profile: any): Promise<
     dance_floors: profile.danceFloors || [],
     updated_at: new Date().toISOString(),
   });
-  if (error) console.error('upsertVenueProfile:', error);
+  if (error) { console.error('upsertVenueProfile:', error); showToast('Failed to save venue profile.'); }
 }
 
 // ── DJ Profile ────────────────────────────────────────────────────────────────
@@ -241,7 +242,7 @@ export async function upsertDJProfile(userId: string, profile: any): Promise<voi
     press_kit: profile.pressKit || null,
     updated_at: new Date().toISOString(),
   });
-  if (error) console.error('[upsertDJProfile] ERROR:', error);
+  if (error) { console.error('[upsertDJProfile] ERROR:', error); showToast('Failed to save DJ profile.'); }
   else console.log('[upsertDJProfile] saved OK');
 }
 
@@ -296,17 +297,17 @@ export async function createConnectionDB(conn: any): Promise<void> {
     status: conn.status || 'pending',
     requested_at: conn.requestedAt || new Date().toISOString(),
   });
-  if (error) console.error('createConnectionDB:', error);
+  if (error) { console.error('createConnectionDB:', error); showToast('Failed to add artist to pool.'); }
 }
 
 export async function updateConnectionStatusDB(connId: string, status: string): Promise<void> {
   const { error } = await supabase.from('connections').update({ status }).eq('id', connId);
-  if (error) console.error('updateConnectionStatusDB:', error);
+  if (error) { console.error('updateConnectionStatusDB:', error); showToast('Failed to update connection.'); }
 }
 
 export async function removeConnectionDB(connId: string): Promise<void> {
   const { error } = await supabase.from('connections').delete().eq('id', connId);
-  if (error) console.error('removeConnectionDB:', error);
+  if (error) { console.error('removeConnectionDB:', error); showToast('Failed to remove connection.'); }
 }
 
 // ── Chats ─────────────────────────────────────────────────────────────────────
@@ -351,7 +352,7 @@ export async function upsertChatDB(chat: any): Promise<void> {
     dj_unread: chat.djUnread || 0,
     updated_at: new Date().toISOString(),
   });
-  if (error) console.error('upsertChatDB:', error);
+  if (error) { console.error('upsertChatDB:', error); showToast('Failed to send message.'); }
 }
 
 // ── Bootstrap: load all user data into localStorage on login ──────────────────

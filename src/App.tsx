@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ToastContainer } from './components/Toast';
 import { Session } from '@supabase/supabase-js';
 import supabase from './supabase';
 import { Calendar, Building2, MessageCircle, List, CalendarDays, Clock, X } from 'lucide-react';
@@ -27,6 +28,7 @@ import {
   loadUserDataToLocalStorage, clearUserLocalStorage,
   upsertEvents, deleteEventDB, fetchAllDJProfiles, updateEventStatusDB, fetchAllVenueProfiles, venueProfileFromDB,
 } from './services/db';
+import { subscribeRealtime, unsubscribeRealtime } from './services/realtime';
 import './App.css';
 
 
@@ -544,12 +546,17 @@ function LoginPage() {
 function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [userType, setUserType] = useState<'dj' | 'venue' | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'events' | 'venues' | 'messages'>('events');
   const [eventTab, setEventTab] = useState<'requests' | 'upcoming'>('requests');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const sessionRef = useRef<Session | null | undefined>(undefined);
+  sessionRef.current = session;
+  const userTypeRef = useRef<'dj' | 'venue' | null>(null);
+  userTypeRef.current = userType;
 
   const [requests, setRequests] = useState<Request[]>([]);
   const [upcoming, setUpcoming] = useState<Request[]>([]);
@@ -604,19 +611,23 @@ function App() {
       setUserType(role);
       if (s && role) {
         setCurrentSession({ userId: s.user.id, role });
+        subscribeRealtime(s.user.id, role);
         loadUserDataToLocalStorage(s.user.id, role).then(() => {
           if (role === 'dj') {
             setRequests(loadRequestsFromStorage(s.user.id));
             setUpcoming(loadUpcomingFromStorage(s.user.id));
             setDjUnread(getUnreadCount('dj'));
           }
-        });
+        }).finally(() => setDataLoading(false));
+      } else {
+        setDataLoading(false);
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const role = session?.user?.user_metadata?.role ?? null;
       if (session && role) {
         setCurrentSession({ userId: session.user.id, role });
+        subscribeRealtime(session.user.id, role);
         loadUserDataToLocalStorage(session.user.id, role).then(() => {
           if (role === 'dj') {
             setRequests(loadRequestsFromStorage(session.user.id));
@@ -627,11 +638,34 @@ function App() {
       } else {
         setCurrentSession(null);
         clearUserLocalStorage();
+        unsubscribeRealtime();
       }
       setSession(session);
       setUserType(role);
     });
-    return () => subscription.unsubscribe();
+
+    // Refresh data when user returns to tab (after 2+ minutes away)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return;
+      const s = sessionRef.current;
+      const role = userTypeRef.current;
+      if (!s || !role) return;
+      const lastRefresh = Number(sessionStorage.getItem('jocky_last_refresh') || '0');
+      if (Date.now() - lastRefresh < 2 * 60 * 1000) return;
+      sessionStorage.setItem('jocky_last_refresh', String(Date.now()));
+      loadUserDataToLocalStorage(s.user.id, role).then(() => {
+        if (role === 'dj') {
+          setRequests(loadRequestsFromStorage(s.user.id));
+          setUpcoming(loadUpcomingFromStorage(s.user.id));
+        }
+      });
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Re-load requests and unread counts when DJ logs in
@@ -644,8 +678,14 @@ function App() {
     }
   }, [session, userType]);
 
-  if (session === undefined) return <div className="login-page"><div style={{ color: 'white', margin: 'auto' }}>Loading…</div></div>;
-  if (!session) return <LoginPage />;
+  if (session === undefined || dataLoading) return (
+    <div className="loading-screen">
+      <div className="loading-logo">JOCKY</div>
+      <div className="loading-spinner" />
+      <ToastContainer />
+    </div>
+  );
+  if (!session) return <><LoginPage /><ToastContainer /></>;
 
   const djUserId = session.user.id;
 
@@ -708,9 +748,9 @@ function App() {
 
   const handleLogout = () => { setShowUserMenu(false); setActiveTab('events'); supabase.auth.signOut(); };
 
-  if (userType === 'venue') return <VenueApp onLogout={handleLogout} userId={session.user.id} />;
+  if (userType === 'venue') return <><VenueApp onLogout={handleLogout} userId={session.user.id} /><ToastContainer /></>;
 
-  if (!session.user.user_metadata?.onboarded) return <DJOnboarding onComplete={() => {}} />;
+  if (!session.user.user_metadata?.onboarded) return <><DJOnboarding onComplete={() => {}} /><ToastContainer /></>;
 
   return (
     <div className="dj-app">
@@ -879,6 +919,7 @@ function App() {
       {showProfile && <DJProfile onClose={() => setShowProfile(false)} />}
 
       {selectedRequest && <RequestDetailsModal req={selectedRequest} onClose={() => setSelectedRequest(null)} />}
+      <ToastContainer />
     </div>
   );
 }
