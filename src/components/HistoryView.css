@@ -71,3 +71,72 @@
   color: #9CA3AF;
   font-size: 14px;
 }
+
+.history-count {
+  font-size: 13px;
+  color: #6B7280;
+  margin-left: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #E5E7EB;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: white;
+}
+
+.history-table td {
+  padding: 14px 20px;
+  font-size: 14px;
+  color: #374151;
+  border-bottom: 1px solid #F3F4F6;
+  white-space: nowrap;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tr:hover td {
+  background: #F9FAFB;
+}
+
+.hist-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.hist-date {
+  color: #6B7280;
+}
+
+.hist-amount {
+  font-weight: 500;
+  color: #111827;
+}
+
+.hist-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.hist-status-confirmed { background: #D1FAE5; color: #065F46; }
+.hist-status-open      { background: #DBEAFE; color: #1E40AF; }
+.hist-status-offered   { background: #FEF3C7; color: #92400E; }
+.hist-status-declined  { background: #FEE2E2; color: #991B1B; }
+.hist-status-created   { background: #F3F4F6; color: #6B7280; }
