@@ -78,10 +78,15 @@ const HistoryView: React.FC<HistoryViewProps> = ({ events }) => {
                 const dateStr = event.selectedDates && event.selectedDates.length > 1
                   ? `${event.selectedDates.length} dates`
                   : `${String(d.getDate()).padStart(2,'0')} ${MONTHS_SHORT[d.getMonth()]}`;
+                const seen = new Set<string>();
                 const artists = [
                   ...(event.interestChecks || []),
                   ...(event.bookingRequests || []),
-                ];
+                ].filter(a => {
+                  if (seen.has(a.artistId)) return false;
+                  seen.add(a.artistId);
+                  return true;
+                });
                 if (event.artistName && artists.length === 0) {
                   artists.push({ artistId: event.artistId || '', artistName: event.artistName });
                 }
