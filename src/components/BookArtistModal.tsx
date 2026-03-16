@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Artist, Event } from '../types';
 import { fetchAllDJProfiles } from '../services/db';
+import MarketplaceProfileModal from './MarketplaceProfileModal';
+import { MarketplaceArtist } from './MarketplaceView';
 import './BookArtistModal.css';
 
 interface BookArtistModalProps {
@@ -44,6 +46,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
     artist.genres.some(g => g.toLowerCase().includes(poolSearchQuery.toLowerCase()))
   );
 
+  const [profileArtist, setProfileArtist] = useState<MarketplaceArtist | null>(null);
   const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<Artist[]>([]);
   useEffect(() => {
     fetchAllDJProfiles().then(profiles => {
@@ -285,7 +288,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                   <div
                     key={artist.id}
                     className={`marketplace-card bam-mp-card ${isSelected ? 'bam-mp-card-selected' : ''}`}
-                    onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
+                    onClick={() => setProfileArtist({ id: artist.id, name: artist.name, type: artist.type, location: artist.location, genres: artist.genres, photo: artist.image })}
                   >
                     <div className="marketplace-card-image">
                       {artist.image
@@ -321,6 +324,13 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
         </div>,
         document.body
       )}
+    {profileArtist && (
+      <MarketplaceProfileModal
+        artist={profileArtist}
+        onClose={() => setProfileArtist(null)}
+        onAdd={() => { toggleArtist(profileArtist.id); setProfileArtist(null); }}
+      />
+    )}
     </div>
   );
 };
