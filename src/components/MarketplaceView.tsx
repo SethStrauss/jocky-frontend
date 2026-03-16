@@ -47,9 +47,10 @@ export function saveConnections(conns: ArtistConnection[]) {
 
 interface MarketplaceViewProps {
   onConnectionChange?: () => void;
+  onBookArtist?: () => void;
 }
 
-const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange }) => {
+const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange, onBookArtist }) => {
   const [artistType, setArtistType] = useState('');
   const [location, setLocation] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -171,7 +172,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange })
         {filtered.map(artist => {
           const status = getConnectionStatus(artist.id);
           return (
-            <div key={artist.id} className="marketplace-card" style={{ cursor: 'pointer' }} onClick={() => setProfileArtist(artist)}>
+            <div key={artist.id} className="marketplace-card" style={{ cursor: 'pointer' }} onClick={() => onBookArtist ? onBookArtist() : setProfileArtist(artist)}>
               <div className="marketplace-card-image">
                 {artist.photo
                   ? <img src={artist.photo} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />

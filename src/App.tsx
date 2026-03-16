@@ -212,7 +212,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
         }} />
       )}
       {!showVenueProfile && activeTab === 'history' && <HistoryView events={events} />}
-      {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} />}
+      {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} onBookArtist={() => setShowBookArtistModal(true)} />}
       {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} profiles={allDJProfilesCache} openChatId={openChatId} onChatOpened={() => setOpenChatId(undefined)} />}
       {showCreateModal && <CreateEventWizard onClose={() => { setShowCreateModal(false); setSelectedDateTime(null); }} onCreate={handleCreateEvent} initialDate={selectedDateTime?.date || currentDate} initialTime={selectedDateTime?.time} artists={poolArtists} />}
       {selectedEvent && (
