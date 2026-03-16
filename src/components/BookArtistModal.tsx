@@ -314,10 +314,10 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
             </div>
 
             <div className="bam-mp-footer" style={{ visibility: selectedArtists.length > 0 ? 'visible' : 'hidden' }}>
-              <span className="bam-mp-selected-count">{selectedArtists.length} selected</span>
-              <button className="btn-create" onClick={() => { handleSubmit(); setShowMarketplace(false); }}>
-                {mode === 'interest' ? 'Send interest check' : 'Send booking request'}
+              <button className="btn-next" onClick={() => setShowMarketplace(false)}>
+                Next step →
               </button>
+              <span className="bam-mp-selected-count">{selectedArtists.length} selected</span>
             </div>
 
           </div>
