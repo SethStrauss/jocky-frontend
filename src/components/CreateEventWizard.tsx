@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Event, Artist } from '../types';
 import DateRangePicker from './DateRangePicker';
 import { MarketplaceArtist } from './MarketplaceView';
@@ -86,6 +87,9 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
   const [marketplaceSearch, setMarketplaceSearch] = useState('');
   const [marketplaceSelected, setMarketplaceSelected] = useState<MarketplaceArtist[]>([]);
   const [marketplaceAdded, setMarketplaceAdded] = useState<Artist[]>([]);
+  const [mpArtistTypeFilter, setMpArtistTypeFilter] = useState('all');
+  const [mpMusicTypeFilter, setMpMusicTypeFilter] = useState('all');
+  const [mpLocationFilter, setMpLocationFilter] = useState('all');
   const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<MarketplaceArtist[]>([]);
 
   useEffect(() => {
@@ -396,81 +400,110 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
             </div>
           )}
 
-          {showMarketplacePicker && (() => {
-            const allMarketplace = allMarketplaceArtists;
-            const filtered = allMarketplace.filter(a =>
-              !marketplaceSearch || a.name.toLowerCase().includes(marketplaceSearch.toLowerCase())
-            );
-            const isSelected = (id: string) => marketplaceSelected.some(a => a.id === id);
-            const toggle = (artist: MarketplaceArtist) => {
-              setMarketplaceSelected(prev =>
-                prev.some(a => a.id === artist.id) ? prev.filter(a => a.id !== artist.id) : [...prev, artist]
-              );
-            };
-            return (
-              <div className="mp-picker-overlay" onClick={() => setShowMarketplacePicker(false)}>
-                <div className="mp-picker-modal" onClick={e => e.stopPropagation()}>
-                  <div className="mp-picker-header">
-                    <h3 className="mp-picker-title">Marketplace</h3>
-                    <button className="modal-close" onClick={() => setShowMarketplacePicker(false)}>×</button>
+          {showMarketplacePicker && ReactDOM.createPortal(
+            <div className="bam-mp-overlay" onClick={() => setShowMarketplacePicker(false)}>
+              <div className="bam-mp-modal" onClick={e => e.stopPropagation()}>
+                <div className="bam-mp-header">
+                  <div>
+                    <h2 className="bam-mp-title">Marketplace</h2>
+                    <p className="bam-mp-count">{allMarketplaceArtists.length} artist{allMarketplaceArtists.length !== 1 ? 's' : ''}</p>
                   </div>
-                  <div className="mp-picker-search">
-                    <svg className="search-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <button className="bam-mp-close" onClick={() => setShowMarketplacePicker(false)}>×</button>
+                </div>
+                <div className="bam-mp-filters">
+                  <div className="search-box" style={{ minWidth: 300 }}>
+                    <svg viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                     </svg>
-                    <input autoFocus className="search-input" placeholder="Search artists…" value={marketplaceSearch} onChange={e => setMarketplaceSearch(e.target.value)} />
+                    <input type="text" placeholder="Search marketplace..." value={marketplaceSearch} onChange={e => setMarketplaceSearch(e.target.value)} />
                   </div>
-                  <div className="mp-picker-list">
-                    {filtered.map(artist => {
-                      const selected = isSelected(artist.id);
+                  <select value={mpArtistTypeFilter} onChange={e => setMpArtistTypeFilter(e.target.value)}>
+                    <option value="all">Type of artist</option>
+                    <option value="dj">DJ</option>
+                    <option value="producer">Producer</option>
+                  </select>
+                  <select value={mpMusicTypeFilter} onChange={e => setMpMusicTypeFilter(e.target.value)}>
+                    <option value="all">Type of music</option>
+                    <option value="house">House</option>
+                    <option value="techno">Techno</option>
+                  </select>
+                  <select value={mpLocationFilter} onChange={e => setMpLocationFilter(e.target.value)}>
+                    <option value="all">Location</option>
+                    <option value="Stockholm">Stockholm</option>
+                  </select>
+                </div>
+                <div className="bam-mp-grid">
+                  {allMarketplaceArtists
+                    .filter(a => !marketplaceSearch || a.name.toLowerCase().includes(marketplaceSearch.toLowerCase()))
+                    .map(artist => {
+                      const isSelected = marketplaceSelected.some(a => a.id === artist.id);
+                      const isInPool = artists.some(a => a.id === artist.id);
                       return (
-                        <div key={artist.id} className={`mp-picker-row ${selected ? 'mp-picker-row--selected' : ''}`} onClick={() => toggle(artist)}>
-                          <div className="artist-avatar-small">
-                            {artist.name.charAt(0)}
+                        <div
+                          key={artist.id}
+                          className={`marketplace-card bam-mp-card ${isSelected ? 'bam-mp-card-selected' : ''}`}
+                          onClick={() => {
+                            if (isInPool) return;
+                            setMarketplaceSelected(prev =>
+                              prev.some(a => a.id === artist.id) ? prev.filter(a => a.id !== artist.id) : [...prev, artist]
+                            );
+                          }}
+                        >
+                          <div className="marketplace-card-image">
+                            {artist.photo
+                              ? <img src={artist.photo} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+                              : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
+                            }
                           </div>
-                          <div className="artist-info-small">
-                            <div className="artist-name-small">{artist.name}</div>
-                            <div className="artist-genres-small">{artist.type}{artist.location ? ` · ${artist.location}` : ''}</div>
-                            {artist.genres && artist.genres.length > 0 && <div className="artist-genres-small">{artist.genres.join(', ')}</div>}
-                          </div>
-                          <div className="mp-picker-check">
-                            {selected && <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 4" stroke="#111827" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                          <div className="marketplace-card-info">
+                            <p className="artist-card-name">{artist.name}</p>
+                            <p className="artist-card-type">{artist.type}</p>
+                            <p className="artist-card-location">{artist.location}</p>
+                            <p className="artist-card-genres">{(artist.genres || []).join(', ')}</p>
+                            <button
+                              className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
+                              onClick={e => {
+                                e.stopPropagation();
+                                if (isInPool) return;
+                                setMarketplaceSelected(prev =>
+                                  prev.some(a => a.id === artist.id) ? prev.filter(a => a.id !== artist.id) : [...prev, artist]
+                                );
+                              }}
+                            >
+                              {isInPool ? 'In your pool' : isSelected ? '✓ Selected' : 'Select'}
+                            </button>
                           </div>
                         </div>
                       );
                     })}
-                  </div>
-                  <div className="mp-picker-footer">
-                    <button className="btn-back" onClick={() => setShowMarketplacePicker(false)}>Cancel</button>
-                    <button
-                      className="btn-next"
-                      disabled={marketplaceSelected.length === 0}
-                      onClick={() => {
-                        const newArtists: Artist[] = marketplaceSelected.map(a => ({
-                          id: a.id, name: a.name, type: a.type, location: a.location,
-                          genres: a.genres || [], about: '', priceRange: a.priceRange,
-                        }));
-                        setMarketplaceAdded(prev => {
-                          const ids = new Set(prev.map(a => a.id));
-                          return [...prev, ...newArtists.filter(a => !ids.has(a.id))];
-                        });
-                        setSelectedArtists(prev => {
-                          const ids = new Set(prev);
-                          marketplaceSelected.forEach(a => ids.add(a.id));
-                          return Array.from(ids);
-                        });
-                        setShowMarketplacePicker(false);
-                        setMarketplaceSelected([]);
-                        setMarketplaceSearch('');
-                      }}
-                    >
-                      Add {marketplaceSelected.length > 0 ? marketplaceSelected.length : ''} artist{marketplaceSelected.length !== 1 ? 's' : ''}
-                    </button>
-                  </div>
+                </div>
+                <div className="bam-mp-footer" style={{ visibility: marketplaceSelected.length > 0 ? 'visible' : 'hidden' }}>
+                  <button className="btn-next" onClick={() => {
+                    const newArtists: Artist[] = marketplaceSelected.map(a => ({
+                      id: a.id, name: a.name, type: a.type, location: a.location,
+                      genres: a.genres || [], about: '', priceRange: a.priceRange,
+                    }));
+                    setMarketplaceAdded(prev => {
+                      const ids = new Set(prev.map(a => a.id));
+                      return [...prev, ...newArtists.filter(a => !ids.has(a.id))];
+                    });
+                    setSelectedArtists(prev => {
+                      const ids = new Set(prev);
+                      marketplaceSelected.forEach(a => ids.add(a.id));
+                      return Array.from(ids);
+                    });
+                    setShowMarketplacePicker(false);
+                    setMarketplaceSelected([]);
+                    setMarketplaceSearch('');
+                  }}>
+                    Next step →
+                  </button>
+                  <span className="bam-mp-selected-count">{marketplaceSelected.length} selected</span>
                 </div>
               </div>
-            );
-          })()}
+            </div>,
+            document.body
+          )}
 
           {currentStep === 3 && (
             <div className="step-content step-upload">
