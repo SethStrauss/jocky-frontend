@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getDJPhoto } from '../utils/djPhoto';
 import { upsertChatDB } from '../services/db';
 import './MessagesView.css';
 
@@ -84,9 +83,10 @@ export function ensureChat(artistId: string, artistName: string, venueName: stri
 interface MessagesViewProps {
   perspective?: 'venue' | 'dj';
   userId?: string;
+  profiles?: any[]; // DJ profiles (venue side) or venue profiles (DJ side)
 }
 
-const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', userId }) => {
+const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', userId, profiles = [] }) => {
   const [chats, setChats] = useState<Chat[]>(loadChats);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [newMessage, setNewMessage] = useState('');
@@ -164,6 +164,15 @@ const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', user
   const getOtherParty = (chat: Chat) =>
     perspective === 'venue' ? chat.artistName : chat.venueName;
 
+  const getPhoto = (chat: Chat): string => {
+    if (perspective === 'venue') {
+      return profiles.find(p => p.id === chat.eventId)?.photo || '';
+    } else {
+      const venueId = (chat as any).venueId || chat.id.split('_')[1] || '';
+      return profiles.find(p => p.id === venueId)?.photo || '';
+    }
+  };
+
   const lastMsg = (chat: Chat) => chat.messages[chat.messages.length - 1];
 
   const filtered = chats.filter(c =>
@@ -204,9 +213,9 @@ const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', user
                 className={`conversation-item ${selectedChat?.id === chat.id ? 'active' : ''}`}
                 onClick={() => handleSelectChat(chat)}
               >
-                <div className="conversation-avatar" style={perspective === 'venue' && getDJPhoto() ? { padding: 0, overflow: 'hidden' } : undefined}>
-                  {perspective === 'venue' && getDJPhoto()
-                    ? <img src={getDJPhoto()} alt={chat.artistName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                <div className="conversation-avatar" style={getPhoto(chat) ? { padding: 0, overflow: 'hidden' } : undefined}>
+                  {getPhoto(chat)
+                    ? <img src={getPhoto(chat)} alt={getOtherParty(chat)} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                     : getOtherParty(chat).charAt(0).toUpperCase()
                   }
                 </div>
@@ -232,7 +241,12 @@ const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', user
           {selectedChat ? (
             <>
               <div className="chat-header">
-                <div className="chat-avatar">{getOtherParty(selectedChat).charAt(0)}</div>
+                <div className="chat-avatar" style={getPhoto(selectedChat) ? { padding: 0, overflow: 'hidden' } : undefined}>
+                  {getPhoto(selectedChat)
+                    ? <img src={getPhoto(selectedChat)} alt={getOtherParty(selectedChat)} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    : getOtherParty(selectedChat).charAt(0)
+                  }
+                </div>
                 <div className="chat-info">
                   <div className="chat-name">{getOtherParty(selectedChat)}</div>
                   <div className="chat-event">{selectedChat.eventName}</div>

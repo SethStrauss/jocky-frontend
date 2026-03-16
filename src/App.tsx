@@ -213,7 +213,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       {!showVenueProfile && activeTab === 'requests' && <RequestsView />}
       {!showVenueProfile && activeTab === 'history' && <HistoryView events={events} />}
       {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} />}
-      {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} />}
+      {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} profiles={allDJProfilesCache} />}
       {showCreateModal && <CreateEventWizard onClose={() => { setShowCreateModal(false); setSelectedDateTime(null); }} onCreate={handleCreateEvent} initialDate={selectedDateTime?.date || currentDate} initialTime={selectedDateTime?.time} artists={poolArtists} />}
       {selectedEvent && (
         <EventDetailsModal event={selectedEvent} clickedDate={selectedEventDate || undefined} onClose={() => { setSelectedEvent(null); setSelectedEventDate(null); }}
@@ -915,7 +915,7 @@ function App() {
           }}
         />
       )}
-      {!showProfile && activeTab === 'messages' && <MessagesView perspective="dj" userId={djUserId} />}
+      {!showProfile && activeTab === 'messages' && <MessagesView perspective="dj" userId={djUserId} profiles={venueProfiles} />}
       {showProfile && <DJProfile onClose={() => setShowProfile(false)} />}
 
       {selectedRequest && <RequestDetailsModal req={selectedRequest} onClose={() => setSelectedRequest(null)} />}
