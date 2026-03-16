@@ -8,7 +8,6 @@ import Navigation from './components/Navigation';
 import CalendarView from './components/CalendarView';
 import WeekView from './components/WeekView';
 import ArtistsView from './components/ArtistsView';
-import RequestsView from './components/RequestsView';
 import HistoryView from './components/HistoryView';
 import MarketplaceView from './components/MarketplaceView';
 import MessagesView, { ensureChat, getUnreadCount, markAllRead } from './components/MessagesView';
@@ -212,7 +211,6 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
           setActiveTab('messages');
         }} />
       )}
-      {!showVenueProfile && activeTab === 'requests' && <RequestsView />}
       {!showVenueProfile && activeTab === 'history' && <HistoryView events={events} />}
       {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} />}
       {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} profiles={allDJProfilesCache} openChatId={openChatId} onChatOpened={() => setOpenChatId(undefined)} />}
