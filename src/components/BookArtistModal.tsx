@@ -197,8 +197,8 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
           {currentStep === 2 && (
             <div className="step-content artists-step">
               <div className="mode-tabs">
-                <button className={`mode-tab ${mode === 'interest' ? 'active' : ''}`} onClick={() => setMode('interest')}>Interest check</button>
-                <button className={`mode-tab ${mode === 'booking' ? 'active' : ''}`} onClick={() => setMode('booking')}>Booking request</button>
+                <button className={`mode-tab ${mode === 'interest' ? 'active' : ''}`} onClick={() => { setMode('interest'); setSelectedArtists([]); }}>Interest check</button>
+                <button className={`mode-tab ${mode === 'booking' ? 'active' : ''}`} onClick={() => { setMode('booking'); setSelectedArtists([]); }}>Booking request</button>
               </div>
 
               {poolArtists.length > 0 && (
