@@ -30,9 +30,15 @@ const HistoryView: React.FC<HistoryViewProps> = ({ events }) => {
   const goToNextMonth = () =>
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const monthEvents = events.filter(e => {
     const d = new Date(e.date);
-    return d.getMonth() === currentMonth.getMonth() && d.getFullYear() === currentMonth.getFullYear();
+    d.setHours(0, 0, 0, 0);
+    return d < today &&
+      d.getMonth() === currentMonth.getMonth() &&
+      d.getFullYear() === currentMonth.getFullYear();
   }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
