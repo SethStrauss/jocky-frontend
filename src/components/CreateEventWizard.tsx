@@ -343,8 +343,8 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
           {currentStep === 2 && (
             <div className="step-content">
               <div className="invite-method-tabs">
-                <button className={`invite-tab ${inviteMethod === 'interest' ? 'active' : ''}`} onClick={() => setInviteMethod('interest')}>Interest check</button>
-                <button className={`invite-tab ${inviteMethod === 'booking' ? 'active' : ''}`} onClick={() => setInviteMethod('booking')}>Booking request</button>
+                <button className={`invite-tab ${inviteMethod === 'interest' ? 'active' : ''}`} onClick={() => { setInviteMethod('interest'); setSelectedArtists([]); }}>Interest check</button>
+                <button className={`invite-tab ${inviteMethod === 'booking' ? 'active' : ''}`} onClick={() => { setInviteMethod('booking'); setSelectedArtists([]); }}>Booking request</button>
               </div>
 
               <div className="ce-search-row">
