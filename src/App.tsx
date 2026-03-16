@@ -101,6 +101,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
   );
 
   const [allDJProfilesCache, setAllDJProfilesCache] = useState<any[]>([]);
+  const [openChatId, setOpenChatId] = useState<string | undefined>(undefined);
 
   const loadAndEnrichPoolArtists = useCallback(async () => {
     const fromConnections = loadConnections()
@@ -204,7 +205,8 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       )}
       {!showVenueProfile && activeTab === 'artists' && (
         <ArtistsView artists={poolArtists} onMessage={(artistId, artistName, venueName) => {
-          ensureChat(artistId, artistName, venueName, userId);
+          const chatId = ensureChat(artistId, artistName, venueName, userId);
+          setOpenChatId(chatId);
           markAllRead('venue');
           setUnreadMessages(0);
           setActiveTab('messages');
@@ -213,7 +215,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       {!showVenueProfile && activeTab === 'requests' && <RequestsView />}
       {!showVenueProfile && activeTab === 'history' && <HistoryView events={events} />}
       {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} />}
-      {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} profiles={allDJProfilesCache} />}
+      {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} profiles={allDJProfilesCache} openChatId={openChatId} onChatOpened={() => setOpenChatId(undefined)} />}
       {showCreateModal && <CreateEventWizard onClose={() => { setShowCreateModal(false); setSelectedDateTime(null); }} onCreate={handleCreateEvent} initialDate={selectedDateTime?.date || currentDate} initialTime={selectedDateTime?.time} artists={poolArtists} />}
       {selectedEvent && (
         <EventDetailsModal event={selectedEvent} clickedDate={selectedEventDate || undefined} onClose={() => { setSelectedEvent(null); setSelectedEventDate(null); }}

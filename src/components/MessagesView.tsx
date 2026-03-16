@@ -84,9 +84,11 @@ interface MessagesViewProps {
   perspective?: 'venue' | 'dj';
   userId?: string;
   profiles?: any[]; // DJ profiles (venue side) or venue profiles (DJ side)
+  openChatId?: string;
+  onChatOpened?: () => void;
 }
 
-const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', userId, profiles = [] }) => {
+const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', userId, profiles = [], openChatId, onChatOpened }) => {
   const [chats, setChats] = useState<Chat[]>(loadChats);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [newMessage, setNewMessage] = useState('');
@@ -110,6 +112,18 @@ const MessagesView: React.FC<MessagesViewProps> = ({ perspective = 'venue', user
     const latest = loadChats();
     setChats(latest);
   }, []);
+
+  // Auto-open a specific chat (e.g. when navigating from artist pool)
+  useEffect(() => {
+    if (!openChatId) return;
+    const latest = loadChats();
+    const chat = latest.find(c => c.id === openChatId);
+    if (chat) {
+      handleSelectChat(chat);
+      onChatOpened?.();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openChatId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
