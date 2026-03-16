@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Event, Artist } from '../types';
 import DateRangePicker from './DateRangePicker';
 import { MarketplaceArtist } from './MarketplaceView';
 import { loadVenueName } from '../utils/venueProfile';
+import { fetchAllDJProfiles } from '../services/db';
 import './CreateEventWizard.css';
 
 interface CreateEventWizardProps {
@@ -85,6 +86,21 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
   const [marketplaceSearch, setMarketplaceSearch] = useState('');
   const [marketplaceSelected, setMarketplaceSelected] = useState<MarketplaceArtist[]>([]);
   const [marketplaceAdded, setMarketplaceAdded] = useState<Artist[]>([]);
+  const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<MarketplaceArtist[]>([]);
+
+  useEffect(() => {
+    fetchAllDJProfiles().then(profiles => {
+      setAllMarketplaceArtists(profiles.filter(p => p.name).map(p => ({
+        id: p.id,
+        name: p.name,
+        type: p.category || 'Club DJ',
+        location: p.location || '',
+        genres: p.genres || [],
+        priceRange: p.price ? `${p.price}` : undefined,
+        photo: p.photo || '',
+      })));
+    });
+  }, []);
 
   // Step 3: Attach PDF
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -381,7 +397,7 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
           )}
 
           {showMarketplacePicker && (() => {
-            const allMarketplace: MarketplaceArtist[] = [];
+            const allMarketplace = allMarketplaceArtists;
             const filtered = allMarketplace.filter(a =>
               !marketplaceSearch || a.name.toLowerCase().includes(marketplaceSearch.toLowerCase())
             );
