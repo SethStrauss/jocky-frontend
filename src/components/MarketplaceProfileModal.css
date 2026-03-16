@@ -28,7 +28,7 @@
   flex-shrink: 0;
   background: linear-gradient(135deg, #1a1f2e 0%, #0f172a 100%);
   background-size: cover;
-  background-position: center top;
+  background-position: center 15%;
 }
 
 .mpm-hero-overlay {

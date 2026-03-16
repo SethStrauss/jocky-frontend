@@ -289,7 +289,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                   >
                     <div className="marketplace-card-image">
                       {artist.image
-                        ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+                        ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
                         : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
                       }
                     </div>

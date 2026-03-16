@@ -27,7 +27,7 @@ function loadFullProfile() {
     price: '5 000 – 10 000 SEK',
     photo: '',
     photoX: 50,
-    photoY: 0,
+    photoY: 15,
     manualGigs: [] as Gig[],
   };
   try {
