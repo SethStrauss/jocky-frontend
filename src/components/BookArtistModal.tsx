@@ -301,9 +301,11 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                       <p className="artist-card-type">{artist.type}</p>
                       <p className="artist-card-location">{artist.location}</p>
                       <p className="artist-card-genres">{artist.genres.join(', ')}</p>
+                    </div>
+                    <div className="marketplace-card-action" onClick={e => e.stopPropagation()}>
                       <button
                         className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
-                        onClick={(e) => { e.stopPropagation(); if (!isInPool) toggleArtist(artist.id); }}
+                        onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
                       >
                         {isInPool ? 'In your pool' : isSelected ? '✓ Selected' : 'Select'}
                       </button>

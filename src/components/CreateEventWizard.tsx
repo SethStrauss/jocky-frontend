@@ -460,10 +460,11 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
                             <p className="artist-card-type">{artist.type}</p>
                             <p className="artist-card-location">{artist.location}</p>
                             <p className="artist-card-genres">{(artist.genres || []).join(', ')}</p>
+                          </div>
+                          <div className="marketplace-card-action" onClick={e => e.stopPropagation()}>
                             <button
                               className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
-                              onClick={e => {
-                                e.stopPropagation();
+                              onClick={() => {
                                 if (isInPool) return;
                                 setMarketplaceSelected(prev =>
                                   prev.some(a => a.id === artist.id) ? prev.filter(a => a.id !== artist.id) : [...prev, artist]
