@@ -223,7 +223,6 @@
   padding: 32px 40px;
   overflow-y: auto;
   flex: 1;
-  align-items: start;
   align-content: start;
 }
 
@@ -236,6 +235,7 @@
   transition: border-color 0.15s;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 .bam-mp-card:hover { border-color: #9CA3AF; }
 .bam-mp-card-selected { border-color: #3B82F6 !important; }
