@@ -172,7 +172,7 @@ const MarketplaceView: React.FC<MarketplaceViewProps> = ({ onConnectionChange, o
         {filtered.map(artist => {
           const status = getConnectionStatus(artist.id);
           return (
-            <div key={artist.id} className="marketplace-card" style={{ cursor: 'pointer' }} onClick={() => onBookArtist ? onBookArtist() : setProfileArtist(artist)}>
+            <div key={artist.id} className="marketplace-card" style={{ cursor: 'pointer' }} onClick={() => setProfileArtist(artist)}>
               <div className="marketplace-card-image">
                 {artist.photo
                   ? <img src={artist.photo} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
