@@ -483,7 +483,7 @@ function LoginPage() {
       <div className="login-page">
         <div className="login-box">
           <div className="login-logo">JOCKY</div>
-          <p className="login-sub">The platform connecting venues and artists</p>
+          <p className="login-sub">Connect venues &amp; artists</p>
           <div className="login-options">
             <button className="login-btn" onClick={() => setRole('venue')}>
               <span>🏛</span>
