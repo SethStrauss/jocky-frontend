@@ -326,12 +326,13 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
         </div>,
         document.body
       )}
-    {profileArtist && (
+    {profileArtist && ReactDOM.createPortal(
       <MarketplaceProfileModal
         artist={profileArtist}
         onClose={() => setProfileArtist(null)}
         onAdd={() => { toggleArtist(profileArtist.id); setProfileArtist(null); }}
-      />
+      />,
+      document.body
     )}
     </div>
   );
