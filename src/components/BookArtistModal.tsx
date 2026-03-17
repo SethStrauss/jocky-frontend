@@ -303,12 +303,12 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                       {artist.genres.length > 0 && <p className="artist-card-genres">{artist.genres.join(', ')}</p>}
                     </div>
                     <div className="marketplace-card-action" onClick={e => e.stopPropagation()}>
-                      {isInPool
-                        ? <span className="conn-status conn-status--accepted">In your pool</span>
-                        : isSelected
-                          ? <button className="btn-add-to-pool" style={{ background: '#22c55e' }} onClick={() => toggleArtist(artist.id)}>✓ Selected</button>
-                          : <button className="btn-add-to-pool" onClick={() => toggleArtist(artist.id)}>+ Select</button>
-                      }
+                      <button
+                        className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
+                        onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
+                      >
+                        {isInPool ? 'In your pool' : isSelected ? '✓ Selected' : 'Select'}
+                      </button>
                     </div>
                   </div>
                 );
