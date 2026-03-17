@@ -73,19 +73,35 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
   });
 
   const renderArtistCard = (artist: Artist) => {
+    const isSelected = selectedArtists.includes(artist.id);
     return (
       <div
         key={artist.id}
-        className={`artist-card ${selectedArtists.includes(artist.id) ? 'selected' : ''}`}
+        className={`marketplace-card ${isSelected ? 'bam-mp-card-selected' : ''}`}
+        style={{ cursor: 'pointer' }}
         onClick={() => toggleArtist(artist.id)}
       >
-        <input type="checkbox" checked={selectedArtists.includes(artist.id)} readOnly />
-        <div className="artist-avatar" style={artist.image ? { backgroundImage: `url(${artist.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-          {!artist.image && artist.name.charAt(0)}
+        <div className="marketplace-card-image">
+          {artist.image
+            ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+            : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
+          }
         </div>
-        <div className="artist-info">
-          <div className="artist-name">{artist.name}</div>
-          <div className="artist-genres">{artist.genres.join(', ')}</div>
+        <div className="marketplace-card-info">
+          <h3 className="artist-card-name">{artist.name}</h3>
+          <p className="artist-card-type">{artist.type}</p>
+          <p className="artist-card-location">{artist.location}</p>
+          {artist.genres.length > 0 && (
+            <p className="artist-card-genres">{artist.genres.join(', ')}</p>
+          )}
+        </div>
+        <div className="marketplace-card-action" onClick={e => e.stopPropagation()}>
+          <button
+            className={`bam-mp-select-btn ${isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
+            onClick={() => toggleArtist(artist.id)}
+          >
+            {isSelected ? '✓ Selected' : 'Select'}
+          </button>
         </div>
       </div>
     );
