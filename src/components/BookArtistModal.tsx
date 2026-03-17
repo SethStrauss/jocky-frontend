@@ -287,22 +287,22 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                 return (
                   <div
                     key={artist.id}
-                    className={`bam-mp-card ${isSelected ? 'bam-mp-card-selected' : ''}`}
+                    className={`marketplace-card${isSelected ? ' bam-mp-card-selected' : ''}`}
                     onClick={() => setProfileArtist({ id: artist.id, name: artist.name, type: artist.type, location: artist.location, genres: artist.genres, photo: artist.image })}
                   >
-                    <div className="bam-mp-card-img">
+                    <div className="marketplace-card-image">
                       {artist.image
-                        ? <img src={artist.image} alt={artist.name} />
-                        : <div className="bam-mp-card-initial">{artist.name.charAt(0)}</div>
+                        ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+                        : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
                       }
                     </div>
-                    <div className="bam-mp-card-info">
-                      <p className="bam-mp-card-name">{artist.name}</p>
-                      {artist.type && <p className="bam-mp-card-type">{artist.type}</p>}
-                      {artist.location && <p className="bam-mp-card-loc">{artist.location}</p>}
-                      {artist.genres.length > 0 && <p className="bam-mp-card-genres">{artist.genres.join(', ')}</p>}
+                    <div className="marketplace-card-info">
+                      <h3 className="artist-card-name">{artist.name}</h3>
+                      {artist.type && <p className="artist-card-type">{artist.type}</p>}
+                      {artist.location && <p className="artist-card-location">{artist.location}</p>}
+                      {artist.genres.length > 0 && <p className="artist-card-genres">{artist.genres.join(', ')}</p>}
                     </div>
-                    <div className="bam-mp-card-foot" onClick={e => e.stopPropagation()}>
+                    <div className="marketplace-card-action" onClick={e => e.stopPropagation()}>
                       <button
                         className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
                         onClick={() => { if (!isInPool) toggleArtist(artist.id); }}
