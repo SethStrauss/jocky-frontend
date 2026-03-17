@@ -486,7 +486,7 @@ function LoginPage() {
           <p className="login-sub">Connect venues &amp; artists</p>
           <div className="login-options">
             <button className="login-btn" onClick={() => setRole('venue')}>
-              <span>🏛</span>
+              <Building2 size={28} strokeWidth={1.5} />
               <div>
                 <div className="login-btn-title">I'm a Venue</div>
                 <div className="login-btn-desc">Book artists for your events</div>
