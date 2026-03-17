@@ -218,20 +218,64 @@
 
 .bam-mp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 24px;
   padding: 32px 40px;
   overflow-y: auto;
   flex: 1;
+  align-items: start;
+  align-content: start;
 }
 
 .bam-mp-card {
+  background: white;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
   cursor: pointer;
-  position: relative;
+  transition: border-color 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+.bam-mp-card:hover { border-color: #9CA3AF; }
+.bam-mp-card-selected { border-color: #3B82F6 !important; }
+
+.bam-mp-card-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.bam-mp-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+  display: block;
+}
+.bam-mp-card-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: white;
 }
 
-.bam-mp-card-selected {
-  border-color: #3B82F6 !important;
+.bam-mp-card-info {
+  padding: 12px 14px 4px;
+  flex: 1;
+}
+.bam-mp-card-name { font-size: 15px; font-weight: 600; color: #111827; margin: 0 0 3px; }
+.bam-mp-card-type { font-size: 13px; color: #6B7280; margin: 0 0 2px; }
+.bam-mp-card-loc  { font-size: 13px; color: #9CA3AF; margin: 0; }
+.bam-mp-card-genres { font-size: 12px; color: #9CA3AF; margin: 3px 0 0; }
+
+.bam-mp-card-foot {
+  padding: 8px 14px 14px;
 }
 
 .bam-mp-select-btn {
@@ -498,9 +542,9 @@
 
 /* Artists List */
 .artists-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .artist-card {
