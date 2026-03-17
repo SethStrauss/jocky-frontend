@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ToastContainer } from './components/Toast';
 import { Session } from '@supabase/supabase-js';
 import supabase from './supabase';
-import { Calendar, Building2, MessageCircle, List, CalendarDays, Clock, X } from 'lucide-react';
+import { Calendar, Building2, MessageCircle, List, CalendarDays, Clock, X, Mic2 } from 'lucide-react';
 import DJProfile from './DJProfile';
 import Navigation from './components/Navigation';
 import CalendarView from './components/CalendarView';
@@ -493,7 +493,7 @@ function LoginPage() {
               </div>
             </button>
             <button className="login-btn" onClick={() => setRole('dj')}>
-              <span>🎧</span>
+              <Mic2 size={28} strokeWidth={1.5} />
               <div>
                 <div className="login-btn-title">I'm an Artist</div>
                 <div className="login-btn-desc">Find gigs and manage bookings</div>
