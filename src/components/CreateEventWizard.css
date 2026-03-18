@@ -1006,15 +1006,26 @@
 
 .invite-card-img {
   width: 100%;
-  aspect-ratio: 1/1;
-  background: #FFF0EF;
+  aspect-ratio: 4/3;
+  background: #F3F4F6;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
   font-weight: 700;
-  color: #EF4444;
-  overflow: hidden;
+  color: #6B7280;
+}
+
+.invite-card-img img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
 }
 
 .invite-card-info {
