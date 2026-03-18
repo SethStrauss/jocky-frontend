@@ -276,19 +276,18 @@
 
 .bam-mp-select-btn {
   width: 100%;
-  padding: 10px;
+  padding: 9px;
   border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 12px;
   transition: all 0.15s;
   font-family: inherit;
 }
-.bam-mp-btn-default { background: #F3F4F6; color: #374151; }
-.bam-mp-btn-default:hover { background: #E5E7EB; }
-.bam-mp-btn-selected { background: #DBEAFE; color: #1D4ED8; }
+.bam-mp-btn-default { background: #EF4444; color: white; }
+.bam-mp-btn-default:hover { background: #DC2626; }
+.bam-mp-btn-selected { background: #D1FAE5; color: #065F46; cursor: default; }
 .bam-mp-btn-pool { background: #D1FAE5; color: #065F46; cursor: default; }
 
 .events-table {

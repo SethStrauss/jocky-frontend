@@ -3,6 +3,7 @@ import { Event, Artist } from '../types';
 import DateRangePicker from './DateRangePicker';
 import { MarketplaceArtist } from './MarketplaceView';
 import { loadVenueName } from '../utils/venueProfile';
+import { fetchAllDJProfiles } from '../services/db';
 import './CreateEventWizard.css';
 
 interface CreateEventWizardProps {
@@ -91,16 +92,18 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
   const [inviteSearch, setInviteSearch] = useState('');
 
   useEffect(() => {
-    const profiles = allDJProfiles.length > 0 ? allDJProfiles : [];
-    setAllMarketplaceArtists(profiles.filter((p: any) => p.name).map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      type: p.category || 'Club DJ',
-      location: p.location || '',
-      genres: p.genres || [],
-      priceRange: p.price ? `${p.price}` : undefined,
-      photo: p.photo || '',
-    })));
+    const toArtist = (p: any) => ({
+      id: p.id, name: p.name, type: p.category || 'Club DJ',
+      location: p.location || '', genres: p.genres || [],
+      priceRange: p.price ? `${p.price}` : undefined, photo: p.photo || '',
+    });
+    if (allDJProfiles.length > 0) {
+      setAllMarketplaceArtists(allDJProfiles.filter((p: any) => p.name).map(toArtist));
+    } else {
+      fetchAllDJProfiles().then(fetched => {
+        setAllMarketplaceArtists(fetched.filter((p: any) => p.name).map(toArtist));
+      });
+    }
   }, [allDJProfiles]);
 
   // Step 3: Attach PDF
