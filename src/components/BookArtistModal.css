@@ -227,12 +227,15 @@
 }
 
 .bam-mp-card {
+  display: flex;
+  flex-direction: column;
   background: white;
   border: 2px solid #E5E7EB;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   transition: border-color 0.15s;
+  align-self: start;
 }
 .bam-mp-card:hover { border-color: #9CA3AF; }
 .bam-mp-card-selected { border-color: #3B82F6 !important; }
