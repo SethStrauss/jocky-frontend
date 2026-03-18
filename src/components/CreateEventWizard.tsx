@@ -480,18 +480,19 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
                       return (
                         <div
                           key={artist.id}
-                          className={`invite-card${isSelected ? ' invite-card--selected' : ''}`}
+                          className={`marketplace-card${isSelected ? ' invite-card--selected' : ''}`}
                           onClick={() => handleInviteCardClick(artist)}
                         >
-                          <div className="invite-card-img">
+                          <div className="marketplace-card-image">
                             {artist.image
                               ? <img src={artist.image} alt={artist.name} />
-                              : artist.name.charAt(0)
+                              : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
                             }
                           </div>
-                          <div className="invite-card-info">
-                            <div className="invite-card-name">{artist.name}</div>
-                            <div className="invite-card-meta">{artist.type}{artist.location ? ` · ${artist.location}` : ''}</div>
+                          <div className="marketplace-card-info">
+                            <h3 className="artist-card-name">{artist.name}</h3>
+                            {artist.type && <p className="artist-card-type">{artist.type}</p>}
+                            {artist.location && <p className="artist-card-location">{artist.location}</p>}
                           </div>
                           {isSelected && <div className="invite-card-check">✓</div>}
                         </div>
