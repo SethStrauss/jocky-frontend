@@ -81,7 +81,6 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
   // Step 2: Invite Artists
   const [inviteMethod, setInviteMethod] = useState<'interest' | 'booking'>('interest');
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [marketplaceAdded, setMarketplaceAdded] = useState<Artist[]>([]);
   const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<MarketplaceArtist[]>([]);
   const [activeSource, setActiveSource] = useState<'my' | 'marketplace'>('my');
@@ -182,11 +181,6 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
     ...artists,
     ...marketplaceAdded.filter(a => !artists.some(p => p.id === a.id)),
   ];
-
-  const filteredArtists = allInviteArtists.filter(artist =>
-    artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    artist.genres.some(g => g.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
 
   const getInitials = (name: string) => {
     const parts = name.replace(/([a-z])([A-Z])/g, '$1 $2').split(/\s+/).filter(Boolean);
