@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import { Event, Artist } from '../types';
 import DateRangePicker from './DateRangePicker';
 import { MarketplaceArtist } from './MarketplaceView';
@@ -83,14 +82,13 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
   const [inviteMethod, setInviteMethod] = useState<'interest' | 'booking'>('interest');
   const [selectedArtists, setSelectedArtists] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showMarketplacePicker, setShowMarketplacePicker] = useState(false);
-  const [marketplaceSearch, setMarketplaceSearch] = useState('');
-  const [marketplaceSelected, setMarketplaceSelected] = useState<MarketplaceArtist[]>([]);
   const [marketplaceAdded, setMarketplaceAdded] = useState<Artist[]>([]);
-  const [mpArtistTypeFilter, setMpArtistTypeFilter] = useState('all');
-  const [mpMusicTypeFilter, setMpMusicTypeFilter] = useState('all');
-  const [mpLocationFilter, setMpLocationFilter] = useState('all');
   const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<MarketplaceArtist[]>([]);
+  const [activeSource, setActiveSource] = useState<'my' | 'marketplace'>('my');
+  const [previewArtist, setPreviewArtist] = useState<{id:string,name:string,type:string,location:string,genres:string[],image?:string} | null>(null);
+  const [inviteTypeFilter, setInviteTypeFilter] = useState('');
+  const [inviteLocFilter, setInviteLocFilter] = useState('');
+  const [inviteSearch, setInviteSearch] = useState('');
 
   useEffect(() => {
     fetchAllDJProfiles().then(profiles => {
@@ -139,10 +137,10 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
 
   const handleCreate = () => {
     const interestChecks = inviteMethod === 'interest' && selectedArtists.length > 0
-      ? selectedArtists.map(id => ({ artistId: id, artistName: artists.find(a => a.id === id)?.name || id }))
+      ? selectedArtists.map(id => ({ artistId: id, artistName: allInviteArtists.find(a => a.id === id)?.name || id }))
       : undefined;
     const bookingRequests = inviteMethod === 'booking' && selectedArtists.length > 0
-      ? selectedArtists.map(id => ({ artistId: id, artistName: artists.find(a => a.id === id)?.name || id }))
+      ? selectedArtists.map(id => ({ artistId: id, artistName: allInviteArtists.find(a => a.id === id)?.name || id }))
       : undefined;
 
     const status = selectedArtists.length === 0 ? 'created' : inviteMethod === 'interest' ? 'open' : 'offered';
@@ -190,6 +188,30 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
     artist.genres.some(g => g.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const getInitials = (name: string) => {
+    const parts = name.replace(/([a-z])([A-Z])/g, '$1 $2').split(/\s+/).filter(Boolean);
+    return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+  };
+
+  const inviteDisplayArtists = activeSource === 'my'
+    ? artists.filter(a =>
+        !inviteSearch ||
+        a.name.toLowerCase().includes(inviteSearch.toLowerCase())
+      )
+    : allMarketplaceArtists
+        .filter(a => !inviteSearch || a.name.toLowerCase().includes(inviteSearch.toLowerCase()))
+        .filter(a => !inviteTypeFilter || a.type.toLowerCase().includes(inviteTypeFilter.toLowerCase()))
+        .filter(a => !inviteLocFilter || a.location === inviteLocFilter)
+        .map(a => ({ id: a.id, name: a.name, type: a.type || '', location: a.location || '', genres: a.genres || [], about: '', image: a.photo || '' } as Artist));
+
+  const handleInviteCardClick = (artist: Artist) => {
+    if (activeSource === 'marketplace' && !artists.some(p => p.id === artist.id)) {
+      setMarketplaceAdded(prev => prev.some(a => a.id === artist.id) ? prev : [...prev, artist]);
+    }
+    toggleArtist(artist.id);
+    setPreviewArtist(artist);
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) setUploadedFile(e.target.files[0]);
   };
@@ -207,7 +229,7 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
 
   return (
     <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="wizard-modal" onClick={(e) => e.stopPropagation()}>
+      <div className={`wizard-modal${currentStep === 2 ? ' wizard-modal--wide' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="wizard-header">
           <h2 className="wizard-title">Create new Event</h2>
           <button className="modal-close" onClick={onClose}>×</button>
@@ -361,149 +383,146 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
           )}
 
           {currentStep === 2 && (
-            <div className="step-content">
-              <div className="invite-method-tabs">
-                <button className={`invite-tab ${inviteMethod === 'interest' ? 'active' : ''}`} onClick={() => { setInviteMethod('interest'); setSelectedArtists([]); }}>Interest check</button>
-                <button className={`invite-tab ${inviteMethod === 'booking' ? 'active' : ''}`} onClick={() => { setInviteMethod('booking'); setSelectedArtists([]); }}>Booking request</button>
-              </div>
-
-              <div className="ce-search-row">
-                <div className="search-box" style={{ flex: 1 }}>
-                  <svg className="search-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                  </svg>
-                  <input type="text" className="search-input" placeholder="Search artist in marketplace" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <div className="invite-layout">
+              {/* LEFT PANEL */}
+              <div className="invite-panel-left">
+                {/* Top bar */}
+                <div className="invite-top-bar">
+                  <span className="invite-events-label">EVENTS:</span>
+                  <div className="invite-date-chips">
+                    {(frequency === 'multiple' && selectedDates.length > 0 ? selectedDates : [eventDate]).slice(0, 3).map(d => {
+                      const [y, m, day] = d.split('-').map(Number);
+                      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                      return <span key={d} className="invite-date-chip">{`${day} ${months[m-1]} ${y}`}</span>;
+                    })}
+                    {frequency === 'multiple' && selectedDates.length > 3 && (
+                      <span className="invite-date-chip">+{selectedDates.length - 3} more</span>
+                    )}
+                  </div>
+                  <div className="invite-top-actions">
+                    <button className="invite-btn-secondary">
+                      <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" /></svg>
+                      Check availability
+                    </button>
+                    <button
+                      className={`invite-btn-mode ${inviteMethod === 'booking' ? 'invite-btn-mode--orange' : 'invite-btn-mode--blue'}`}
+                      onClick={() => setInviteMethod(m => m === 'interest' ? 'booking' : 'interest')}
+                    >
+                      {inviteMethod === 'booking' ? '⚡ Send offer' : 'Interest check'}
+                    </button>
+                  </div>
                 </div>
-                <button className="btn-find-marketplace" onClick={() => setShowMarketplacePicker(true)}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                  Find from marketplace
-                </button>
+
+                {/* Info banner */}
+                <div className={`invite-banner ${inviteMethod === 'booking' ? 'invite-banner--orange' : 'invite-banner--blue'}`}>
+                  <strong>{inviteMethod === 'booking' ? 'Send offer:' : 'Interest check:'}</strong>
+                  {inviteMethod === 'booking'
+                    ? ' Binding booking offer. First artist to accept gets the gig. Send to many — first-come, first-booked.'
+                    : ' Non-binding check to see if artists are available before committing.'}
+                </div>
+
+                {/* Source tabs */}
+                <div className="invite-source-tabs">
+                  <button className={`invite-source-tab ${activeSource === 'my' ? 'active' : ''}`} onClick={() => setActiveSource('my')}>My artists</button>
+                  <button className={`invite-source-tab ${activeSource === 'marketplace' ? 'active' : ''}`} onClick={() => setActiveSource('marketplace')}>🛒 Marketplace</button>
+                </div>
+
+                {/* Filters */}
+                <div className="invite-filters-row">
+                  {activeSource === 'marketplace' && (
+                    <>
+                      <select className="invite-filter-select" value={inviteTypeFilter} onChange={e => setInviteTypeFilter(e.target.value)}>
+                        <option value="">Type of artist</option>
+                        <option value="DJ">DJ</option>
+                        <option value="Live">Live artist</option>
+                      </select>
+                      <select className="invite-filter-select" value={inviteLocFilter} onChange={e => setInviteLocFilter(e.target.value)}>
+                        <option value="">Location</option>
+                        <option value="Stockholm">Stockholm</option>
+                        <option value="Göteborg">Göteborg</option>
+                      </select>
+                    </>
+                  )}
+                  <span className="invite-artist-count">{inviteDisplayArtists.length} artists</span>
+                  <input
+                    className="invite-search"
+                    placeholder="Search..."
+                    value={inviteSearch}
+                    onChange={e => setInviteSearch(e.target.value)}
+                  />
+                </div>
+
+                {/* Cards grid */}
+                <div className="invite-cards-grid">
+                  {inviteDisplayArtists.length === 0 ? (
+                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px', color: '#9CA3AF', fontSize: 13 }}>
+                      {activeSource === 'my' ? 'No artists in your pool yet.' : 'No artists found.'}
+                    </div>
+                  ) : inviteDisplayArtists.map(artist => {
+                    const isSelected = selectedArtists.includes(artist.id);
+                    return (
+                      <div
+                        key={artist.id}
+                        className={`invite-card ${isSelected ? 'invite-card--selected' : ''}`}
+                        onClick={() => handleInviteCardClick(artist)}
+                      >
+                        <div className="invite-card-img">
+                          {artist.image
+                            ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }} />
+                            : <span>{getInitials(artist.name)}</span>
+                          }
+                        </div>
+                        <div className="invite-card-info">
+                          <div className="invite-card-name">{artist.name}</div>
+                          <div className="invite-card-meta">{artist.type}{artist.location ? ` · ${artist.location}` : ''}</div>
+                        </div>
+                        {isSelected && <div className="invite-card-check">✓</div>}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="artists-list">
-                {filteredArtists.map(artist => {
-                  return (
-                    <label key={artist.id} className="artist-item">
-                      <input type="checkbox" checked={selectedArtists.includes(artist.id)} onChange={() => toggleArtist(artist.id)} />
-                      <div className="artist-avatar-small" style={artist.image ? { backgroundImage: `url(${artist.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
-                        {!artist.image && artist.name.charAt(0)}
+              {/* RIGHT PANEL */}
+              <div className="invite-panel-right">
+                <div className="invite-preview-area">
+                  {previewArtist ? (
+                    <div className="invite-preview">
+                      <div className="invite-preview-img">
+                        {previewArtist.image
+                          ? <img src={previewArtist.image} alt={previewArtist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          : <span>{getInitials(previewArtist.name)}</span>
+                        }
                       </div>
-                      <div className="artist-info-small">
-                        <div className="artist-name-small">{artist.name}</div>
-                        <div className="artist-genres-small">{artist.type}{artist.location ? ` · ${artist.location}` : ''}</div>
-                        {artist.genres.length > 0 && <div className="artist-genres-small">{artist.genres.join(', ')}</div>}
-                      </div>
-                    </label>
-                  );
-                })}
+                      <div className="invite-preview-name">{previewArtist.name}</div>
+                      <div className="invite-preview-meta">{previewArtist.type}{previewArtist.location ? ` · ${previewArtist.location}` : ''}</div>
+                      {previewArtist.genres.length > 0 && <div className="invite-preview-genres">{previewArtist.genres.join(', ')}</div>}
+                    </div>
+                  ) : (
+                    <div className="invite-preview-placeholder">Select an artist to preview their profile</div>
+                  )}
+                </div>
+
+                <div className="invite-selected-section">
+                  <div className="invite-selected-label">SELECTED</div>
+                  {selectedArtists.length === 0 ? (
+                    <div className="invite-selected-empty">None yet — click artists to select</div>
+                  ) : (
+                    <div className="invite-selected-list">
+                      {selectedArtists.map(id => {
+                        const a = allInviteArtists.find(x => x.id === id);
+                        return a ? (
+                          <div key={id} className="invite-selected-row">
+                            <span className="invite-selected-name">{a.name}</span>
+                            <button className="invite-selected-remove" onClick={() => toggleArtist(id)}>×</button>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          )}
-
-          {showMarketplacePicker && ReactDOM.createPortal(
-            <div className="bam-mp-overlay" onClick={() => setShowMarketplacePicker(false)}>
-              <div className="bam-mp-modal" onClick={e => e.stopPropagation()}>
-                <div className="bam-mp-header">
-                  <div>
-                    <h2 className="bam-mp-title">Marketplace</h2>
-                    <p className="bam-mp-count">{allMarketplaceArtists.length} artist{allMarketplaceArtists.length !== 1 ? 's' : ''}</p>
-                  </div>
-                  <button className="bam-mp-close" onClick={() => setShowMarketplacePicker(false)}>×</button>
-                </div>
-                <div className="bam-mp-filters">
-                  <div className="search-box" style={{ minWidth: 300 }}>
-                    <svg viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                    </svg>
-                    <input type="text" placeholder="Search marketplace..." value={marketplaceSearch} onChange={e => setMarketplaceSearch(e.target.value)} />
-                  </div>
-                  <select value={mpArtistTypeFilter} onChange={e => setMpArtistTypeFilter(e.target.value)}>
-                    <option value="all">Type of artist</option>
-                    <option value="dj">DJ</option>
-                    <option value="producer">Producer</option>
-                  </select>
-                  <select value={mpMusicTypeFilter} onChange={e => setMpMusicTypeFilter(e.target.value)}>
-                    <option value="all">Type of music</option>
-                    <option value="house">House</option>
-                    <option value="techno">Techno</option>
-                  </select>
-                  <select value={mpLocationFilter} onChange={e => setMpLocationFilter(e.target.value)}>
-                    <option value="all">Location</option>
-                    <option value="Stockholm">Stockholm</option>
-                  </select>
-                </div>
-                <div className="bam-mp-grid">
-                  {allMarketplaceArtists
-                    .filter(a => !marketplaceSearch || a.name.toLowerCase().includes(marketplaceSearch.toLowerCase()))
-                    .map(artist => {
-                      const isSelected = marketplaceSelected.some(a => a.id === artist.id);
-                      const isInPool = artists.some(a => a.id === artist.id);
-                      return (
-                        <div
-                          key={artist.id}
-                          className={`marketplace-card bam-mp-card ${isSelected ? 'bam-mp-card-selected' : ''}`}
-                          onClick={() => {
-                            if (isInPool) return;
-                            setMarketplaceSelected(prev =>
-                              prev.some(a => a.id === artist.id) ? prev.filter(a => a.id !== artist.id) : [...prev, artist]
-                            );
-                          }}
-                        >
-                          <div className="marketplace-card-image">
-                            {artist.photo
-                              ? <img src={artist.photo} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
-                              : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
-                            }
-                          </div>
-                          <div className="marketplace-card-info">
-                            <p className="artist-card-name">{artist.name}</p>
-                            <p className="artist-card-type">{artist.type}</p>
-                            <p className="artist-card-location">{artist.location}</p>
-                            <p className="artist-card-genres">{(artist.genres || []).join(', ')}</p>
-                          </div>
-                          <div className="marketplace-card-action" onClick={e => e.stopPropagation()}>
-                            <button
-                              className={`bam-mp-select-btn ${isInPool ? 'bam-mp-btn-pool' : isSelected ? 'bam-mp-btn-selected' : 'bam-mp-btn-default'}`}
-                              onClick={() => {
-                                if (isInPool) return;
-                                setMarketplaceSelected(prev =>
-                                  prev.some(a => a.id === artist.id) ? prev.filter(a => a.id !== artist.id) : [...prev, artist]
-                                );
-                              }}
-                            >
-                              {isInPool ? 'In your pool' : isSelected ? '✓ Selected' : 'Select'}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-                <div className="bam-mp-footer" style={{ visibility: marketplaceSelected.length > 0 ? 'visible' : 'hidden' }}>
-                  <button className="btn-next" onClick={() => {
-                    const newArtists: Artist[] = marketplaceSelected.map(a => ({
-                      id: a.id, name: a.name, type: a.type, location: a.location,
-                      genres: a.genres || [], about: '', priceRange: a.priceRange,
-                    }));
-                    setMarketplaceAdded(prev => {
-                      const ids = new Set(prev.map(a => a.id));
-                      return [...prev, ...newArtists.filter(a => !ids.has(a.id))];
-                    });
-                    setSelectedArtists(prev => {
-                      const ids = new Set(prev);
-                      marketplaceSelected.forEach(a => ids.add(a.id));
-                      return Array.from(ids);
-                    });
-                    setShowMarketplacePicker(false);
-                    setMarketplaceSelected([]);
-                    setMarketplaceSearch('');
-                  }}>
-                    Next step →
-                  </button>
-                  <span className="bam-mp-selected-count">{marketplaceSelected.length} selected</span>
-                </div>
-              </div>
-            </div>,
-            document.body
           )}
 
           {currentStep === 3 && (
