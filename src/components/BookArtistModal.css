@@ -235,7 +235,6 @@
   overflow: hidden;
   cursor: pointer;
   transition: border-color 0.15s;
-  align-self: start;
 }
 .bam-mp-card:hover { border-color: #9CA3AF; }
 .bam-mp-card-selected { border-color: #3B82F6 !important; }
