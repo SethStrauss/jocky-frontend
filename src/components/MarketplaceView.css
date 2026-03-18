@@ -107,18 +107,22 @@
 
 .marketplace-card-image {
   width: 100%;
-  aspect-ratio: 4/3;
+  padding-top: 75%;
   background: #F3F4F6;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 }
 
-.marketplace-card-image img {
+.marketplace-card-image img,
+.marketplace-card-image .placeholder-image {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.marketplace-card-image img {
   object-fit: cover;
   object-position: center 15%;
   display: block;
