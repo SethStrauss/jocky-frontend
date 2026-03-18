@@ -229,6 +229,7 @@
 .bam-mp-card {
   display: flex;
   flex-direction: column;
+  align-self: start;
   background: white;
   border: 2px solid #E5E7EB;
   border-radius: 8px;
@@ -241,15 +242,10 @@
 
 .bam-mp-card-img {
   width: 100%;
-  padding-top: 75%;
-  position: relative;
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
   background: #F3F4F6;
   overflow: hidden;
-}
-.bam-mp-card-img > img,
-.bam-mp-card-img > .bam-mp-card-initial {
-  position: absolute;
-  inset: 0;
 }
 .bam-mp-card-img > img {
   width: 100%;
@@ -259,6 +255,8 @@
   display: block;
 }
 .bam-mp-card-initial {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
