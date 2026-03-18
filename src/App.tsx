@@ -214,7 +214,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
       {!showVenueProfile && activeTab === 'history' && <HistoryView events={events} />}
       {!showVenueProfile && activeTab === 'marketplace' && <MarketplaceView onConnectionChange={refreshPoolArtists} onBookArtist={() => setShowBookArtistModal(true)} />}
       {!showVenueProfile && activeTab === 'messages' && <MessagesView perspective="venue" userId={userId} profiles={allDJProfilesCache} openChatId={openChatId} onChatOpened={() => setOpenChatId(undefined)} />}
-      {showCreateModal && <CreateEventWizard onClose={() => { setShowCreateModal(false); setSelectedDateTime(null); }} onCreate={handleCreateEvent} initialDate={selectedDateTime?.date || currentDate} initialTime={selectedDateTime?.time} artists={poolArtists} />}
+      {showCreateModal && <CreateEventWizard onClose={() => { setShowCreateModal(false); setSelectedDateTime(null); }} onCreate={handleCreateEvent} initialDate={selectedDateTime?.date || currentDate} initialTime={selectedDateTime?.time} artists={poolArtists} allDJProfiles={allDJProfilesCache} />}
       {selectedEvent && (
         <EventDetailsModal event={selectedEvent} clickedDate={selectedEventDate || undefined} onClose={() => { setSelectedEvent(null); setSelectedEventDate(null); }}
           onUpdate={(updatedEvent?: Event) => { if (updatedEvent) { saveEvents(events.map(e => e.id === updatedEvent.id ? updatedEvent : e)); setSelectedEvent(updatedEvent); } }}
@@ -255,7 +255,7 @@ function VenueApp({ onLogout, userId }: { onLogout: () => void; userId: string }
           }
         }
         setShowBookArtistModal(false);
-      }} artists={poolArtists.filter(a => a.status === 'accepted')} events={events} />}
+      }} artists={poolArtists.filter(a => a.status === 'accepted')} events={events} allDJProfiles={allDJProfilesCache} />}
     </div>
   );
 }

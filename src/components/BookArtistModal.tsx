@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Artist, Event } from '../types';
-import { fetchAllDJProfiles } from '../services/db';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import { MarketplaceArtist } from './MarketplaceView';
 import './BookArtistModal.css';
@@ -11,9 +10,10 @@ interface BookArtistModalProps {
   onBook: (selectedArtists: string[], selectedEvents: string[], mode: 'interest' | 'booking') => void;
   artists: Artist[];
   events: Event[];
+  allDJProfiles?: any[];
 }
 
-const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, artists, events }) => {
+const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, artists, events, allDJProfiles = [] }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [mode, setMode] = useState<'interest' | 'booking'>('interest');
   const [selectedEvents, setSelectedEvents] = useState<string[]>([]);
@@ -47,20 +47,15 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
   );
 
   const [profileArtist, setProfileArtist] = useState<MarketplaceArtist | null>(null);
-  const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<Artist[]>([]);
-  useEffect(() => {
-    fetchAllDJProfiles().then(profiles => {
-      setAllMarketplaceArtists(profiles.filter(p => p.name).map(p => ({
-        id: p.id,
-        name: p.name,
-        type: p.category || 'Club DJ',
-        location: p.location || '',
-        genres: p.genres || [],
-        about: p.bio || '',
-        image: p.photo || '',
-      })));
-    });
-  }, []);
+  const allMarketplaceArtists: Artist[] = allDJProfiles.filter((p: any) => p.name).map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    type: p.category || 'Club DJ',
+    location: p.location || '',
+    genres: p.genres || [],
+    about: p.bio || '',
+    image: p.photo || '',
+  }));
 
   const marketplaceArtists = allMarketplaceArtists.filter(artist => {
     const matchesSearch = artist.name.toLowerCase().includes(marketplaceSearchQuery.toLowerCase()) ||
