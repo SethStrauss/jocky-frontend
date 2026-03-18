@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Artist, Event } from '../types';
+import { fetchAllDJProfiles } from '../services/db';
 import MarketplaceProfileModal from './MarketplaceProfileModal';
 import { MarketplaceArtist } from './MarketplaceView';
 import './BookArtistModal.css';
@@ -47,15 +48,25 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
   );
 
   const [profileArtist, setProfileArtist] = useState<MarketplaceArtist | null>(null);
-  const allMarketplaceArtists: Artist[] = allDJProfiles.filter((p: any) => p.name).map((p: any) => ({
-    id: p.id,
-    name: p.name,
-    type: p.category || 'Club DJ',
-    location: p.location || '',
-    genres: p.genres || [],
-    about: p.bio || '',
-    image: p.photo || '',
-  }));
+  const [allMarketplaceArtists, setAllMarketplaceArtists] = useState<Artist[]>([]);
+  useEffect(() => {
+    const profiles = allDJProfiles.length > 0 ? allDJProfiles : null;
+    if (profiles) {
+      setAllMarketplaceArtists(profiles.filter((p: any) => p.name).map((p: any) => ({
+        id: p.id, name: p.name, type: p.category || 'Club DJ',
+        location: p.location || '', genres: p.genres || [],
+        about: p.bio || '', image: p.photo || '',
+      })));
+    } else {
+      fetchAllDJProfiles().then(fetched => {
+        setAllMarketplaceArtists(fetched.filter((p: any) => p.name).map((p: any) => ({
+          id: p.id, name: p.name, type: p.category || 'Club DJ',
+          location: p.location || '', genres: p.genres || [],
+          about: p.bio || '', image: p.photo || '',
+        })));
+      });
+    }
+  }, [allDJProfiles]);
 
   const marketplaceArtists = allMarketplaceArtists.filter(artist => {
     const matchesSearch = artist.name.toLowerCase().includes(marketplaceSearchQuery.toLowerCase()) ||
@@ -287,7 +298,7 @@ const BookArtistModal: React.FC<BookArtistModalProps> = ({ onClose, onBook, arti
                   >
                     <div className="marketplace-card-image">
                       {artist.image
-                        ? <img src={artist.image} alt={artist.name} />
+                        ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
                         : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
                       }
                     </div>
