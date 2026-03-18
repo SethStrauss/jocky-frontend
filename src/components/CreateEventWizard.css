@@ -1037,6 +1037,14 @@
   text-overflow: ellipsis;
 }
 
+/* Marketplace cards in invite step */
+.invite-mp-card { position: relative; cursor: pointer; }
+.invite-mp-card--selected { border-color: #EF4444 !important; }
+
+/* My artists list */
+.invite-my-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
+.artist-item--checked { border-color: #1E40AF; background: #EFF6FF; }
+
 .invite-card-check {
   position: absolute;
   top: 6px;

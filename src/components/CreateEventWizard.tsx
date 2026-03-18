@@ -446,35 +446,60 @@ const CreateEventWizard: React.FC<CreateEventWizardProps> = ({
                   />
                 </div>
 
-                {/* Cards grid */}
-                <div className="invite-cards-grid">
-                  {inviteDisplayArtists.length === 0 ? (
-                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px', color: '#9CA3AF', fontSize: 13 }}>
-                      {activeSource === 'my' ? 'No artists in your pool yet.' : 'No artists found.'}
-                    </div>
-                  ) : inviteDisplayArtists.map(artist => {
-                    const isSelected = selectedArtists.includes(artist.id);
-                    return (
-                      <div
-                        key={artist.id}
-                        className={`invite-card ${isSelected ? 'invite-card--selected' : ''}`}
-                        onClick={() => handleInviteCardClick(artist)}
-                      >
-                        <div className="invite-card-img">
-                          {artist.image
-                            ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }} />
-                            : <span>{getInitials(artist.name)}</span>
-                          }
+                {/* My artists — checkbox list */}
+                {activeSource === 'my' && (
+                  <div className="invite-my-list">
+                    {inviteDisplayArtists.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF', fontSize: 13 }}>No artists in your pool yet.</div>
+                    ) : inviteDisplayArtists.map(artist => {
+                      const isSelected = selectedArtists.includes(artist.id);
+                      return (
+                        <label key={artist.id} className={`artist-item${isSelected ? ' artist-item--checked' : ''}`}>
+                          <input type="checkbox" checked={isSelected} onChange={() => handleInviteCardClick(artist)} />
+                          <div className="artist-avatar-small" style={artist.image ? { backgroundImage: `url(${artist.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
+                            {!artist.image && artist.name.charAt(0)}
+                          </div>
+                          <div className="artist-info-small">
+                            <div className="artist-name-small">{artist.name}</div>
+                            <div className="artist-genres-small">{artist.type}{artist.location ? ` · ${artist.location}` : ''}</div>
+                            {artist.genres.length > 0 && <div className="artist-genres-small">{artist.genres.join(', ')}</div>}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Marketplace — photo cards grid */}
+                {activeSource === 'marketplace' && (
+                  <div className="invite-cards-grid">
+                    {inviteDisplayArtists.length === 0 ? (
+                      <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 20px', color: '#9CA3AF', fontSize: 13 }}>No artists found.</div>
+                    ) : inviteDisplayArtists.map(artist => {
+                      const isSelected = selectedArtists.includes(artist.id);
+                      return (
+                        <div
+                          key={artist.id}
+                          className={`marketplace-card invite-mp-card${isSelected ? ' invite-mp-card--selected' : ''}`}
+                          onClick={() => handleInviteCardClick(artist)}
+                        >
+                          <div className="marketplace-card-image">
+                            {artist.image
+                              ? <img src={artist.image} alt={artist.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+                              : <div className="placeholder-image"><span>{artist.name.charAt(0)}</span></div>
+                            }
+                          </div>
+                          <div className="marketplace-card-info" style={{ padding: '8px 10px 4px' }}>
+                            <h3 className="artist-card-name" style={{ fontSize: 12 }}>{artist.name}</h3>
+                            <p className="artist-card-type" style={{ fontSize: 11 }}>{artist.type}</p>
+                            <p className="artist-card-location" style={{ fontSize: 11 }}>{artist.location}</p>
+                          </div>
+                          {isSelected && <div className="invite-card-check">✓</div>}
                         </div>
-                        <div className="invite-card-info">
-                          <div className="invite-card-name">{artist.name}</div>
-                          <div className="invite-card-meta">{artist.type}{artist.location ? ` · ${artist.location}` : ''}</div>
-                        </div>
-                        {isSelected && <div className="invite-card-check">✓</div>}
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* RIGHT PANEL */}
